@@ -1,0 +1,45 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block title %} بروزرسانی خودرو {{ car.car_license_plate }} {% endblock title %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="container">
+    <div><h2>بروزرسانی خودرو {{ car.car_license_plate }}</h2></div>
+    <div class="container">
+        <div class="form-container">
+            {% if form.errors %}
+            <ul class="errorlist">
+                {% for field, errors in form.errors.items %}
+                    <li><strong>{{ field }}:</strong>
+                        <ul>
+                            {% for error in errors %}
+                                <li style="color: red;">{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    
+            <form method="post">
+                {% csrf_token %}
+                <div class="block-fields">
+                    <p class="inline-fields"> {{ form.as_p }} </p>
+                </div>
+                <p><button type="submit" class="submit-btn">بروزرسانی خودرو</button></p>
+            </form>
+        </div>
+        
+    </div>
+    </div>
+    
+</div>
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}

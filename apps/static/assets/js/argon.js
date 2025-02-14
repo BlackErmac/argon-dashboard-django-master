@@ -1,24 +1,3 @@
-
-/*!
-
-=========================================================
-* Argon Dashboard - v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard/blob/master/LICENSE.md)
-
-* Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-
-
 //
 // Layout
 //
@@ -174,7 +153,7 @@ var Charts = (function() {
 	var $toggle = $('[data-toggle="chart"]');
 	var mode = 'light';//(themeMode) ? themeMode : 'light';
 	var fonts = {
-		base: 'Open Sans'
+		base: 'Vazir'
 	}
 
 	// Colors
@@ -407,7 +386,7 @@ var Charts = (function() {
 			// Update ticks
 			$chart.options.scales.yAxes[0].ticks.callback = function(value) {
 				if (!(value % 10)) {
-					return prefix + value + suffix;
+					return value + ' ت';
 				}
 			}
 
@@ -421,7 +400,7 @@ var Charts = (function() {
 					content += '<span class="popover-body-label mr-auto">' + label + '</span>';
 				}
 
-				content += '<span class="popover-body-value">' + prefix + yLabel + suffix + '</span>';
+				content += yLabel + ' هزار تومان';
 				return content;
 			}
 
@@ -493,10 +472,10 @@ var CopyIcon = (function() {
 
 		clipboard.on('success', function(e) {
 			$(e.trigger)
-				.attr('title', 'Copied!')
+				.attr('title', 'کپی شد!')
 				.tooltip('_fixTitle')
 				.tooltip('show')
-				.attr('title', 'Copy to clipboard')
+				.attr('title', 'کپی در کلیپبورد')
 				.tooltip('_fixTitle')
 
 			e.clearSelection()
@@ -802,8 +781,8 @@ function initMap() {
         title: 'Hello World!'
     });
 
-    var contentString = '<div class="info-window-content"><h2>Argon Dashboard</h2>' +
-        '<p>A beautiful Dashboard for Bootstrap 4. It is Free and Open Source.</p></div>';
+    var contentString = '<div class="info-window-content"><h2>پنل مدیریت آرگون</h2>' +
+        '<p>یک داشبورد کاربری زیبا و کاربردی. ساخته شده با Bootstrap 4</p></div>';
 
     var infowindow = new google.maps.InfoWindow({
         content: contentString
@@ -842,9 +821,9 @@ var BarsChart = (function() {
 		var ordersChart = new Chart($chart, {
 			type: 'bar',
 			data: {
-				labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+				labels: ['خرداد', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر'],
 				datasets: [{
-					label: 'Sales',
+					label: 'فروش',
 					data: [25, 20, 30, 22, 17, 29]
 				}]
 			}
@@ -892,7 +871,7 @@ var SalesChart = (function() {
             ticks: {
               callback: function(value) {
                 if (!(value % 10)) {
-                  return '$' + value + 'k';
+                  return value + ' ت';
                 }
               }
             }
@@ -906,19 +885,19 @@ var SalesChart = (function() {
               var content = '';
 
               if (data.datasets.length > 1) {
-                content += '<span class="popover-body-label mr-auto">' + label + '</span>';
+                content += '<span class="popover-body-label ml-auto">' + label + '</span>';
               }
 
-              content += '<span class="popover-body-value">$' + yLabel + 'k</span>';
+              content += yLabel + ' هزار تومان';
               return content;
             }
           }
         }
       },
       data: {
-        labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان'],
         datasets: [{
-          label: 'Performance',
+          label: 'کارایی',
           data: [0, 20, 10, 30, 15, 40, 20, 60, 60]
         }]
       }

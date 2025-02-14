@@ -1,0 +1,12 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="container" >
+    
+<p>شما با موفقیت وظیفه {{ task.driver }} {{ task.car }} {{ task.duration }} را حذف کردید.</p>
+<a href="{% url 'transportation:task_list' %}">Click!</a>
+
+</div>
+
+{% endblock content %}
