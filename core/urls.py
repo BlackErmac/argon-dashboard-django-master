@@ -11,5 +11,6 @@ urlpatterns = [
     path("", include("apps.authentication.urls")),  # Auth routes - login / register
     path("dashboard/", include("apps.home.urls" , namespace='home')),            # UI Kits Html files
     path("transportation/" , include("apps.transportation.urls" , namespace='transportation')),           # cars application
+    path("maps/" , include("apps.maps.urls" , namespace='map')), # maps application
 
 ]

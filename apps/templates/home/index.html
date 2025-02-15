@@ -1,5 +1,4 @@
 {% extends 'layouts/base.html' %}
-{% load leaflet_tags %}
 {% block title %} Dashboard {% endblock title %}
 
 <!-- Specific CSS goes HERE -->
@@ -324,7 +323,6 @@
         </div>
       </div>
       <div>
-        {% leaflet_map "yourmap" %}
       </div>
       {% include "includes/footer.html" %}
 
