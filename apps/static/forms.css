@@ -4,7 +4,7 @@
     padding : 40px;
 }
 .form-container {
-    max-width: 200px;
+    max-width: 600px;
     margin: 0 auto;
     padding: 20px;
     background-color: #f9f9f9;
@@ -36,7 +36,7 @@
 input, select {
     width: 100%;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     border-radius: 5px;
 }
 
@@ -49,6 +49,7 @@ input, select {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    align-content: center;
 }
 
 .submit-btn:hover {

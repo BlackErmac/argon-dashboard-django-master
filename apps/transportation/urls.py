@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (driver_create , driver_list , driver_update , driver_delete ,
-                    car_create , car_list , car_update , car_delete,
+                    car_create , car_list , car_update , car_delete, car_maintenance,
                     task_create , task_list , task_delete , task_update , task_finish)
 
 app_name = 'transportation'
@@ -17,6 +17,7 @@ urlpatterns = [
     path('car/create/', car_create, name='car_create'),
     path('car/<int:pk>/edit/', car_update, name='car_update'),
     path('car/<int:pk>/delete/' , car_delete , name = 'car_delete'),
+    path('cat/<int:pk>/maintenance/' , car_maintenance , name = 'car_maintenance'),
     # Task URLs
     path('tasks/', task_list, name='task_list'),
     path('task/create/', task_create, name='task_create'),

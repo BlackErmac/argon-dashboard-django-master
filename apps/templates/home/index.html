@@ -121,38 +121,11 @@
     <div class="container-fluid mt--6">
       <div class="row">
         <div class="col-xl-8">
-          <div class="card bg-default">
-            <div class="card-header bg-transparent">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h6 class="text-light text-uppercase mb-1">بررسی اجمالی</h6>
-                  <h5 class="h3 text-white mb-0">ارزش فروش</h5>
-                </div>
-                <div class="col">
-                  <ul class="nav nav-pills justify-content-end">
-                    <li class="nav-item ml-2 mr-md-0" data-toggle="chart" data-target="#chart-sales-dark" data-update='{"data":{"datasets":[{"data":[0, 20, 10, 30, 15, 40, 20, 60, 60]}]}}' data-prefix="$" data-suffix="k">
-                      <a href="#" class="nav-link py-2 px-3 active" data-toggle="tab">
-                        <span class="d-none d-md-block">ماه</span>
-                        <span class="d-md-none">م</span>
-                      </a>
-                    </li>
-                    <li class="nav-item" data-toggle="chart" data-target="#chart-sales-dark" data-update='{"data":{"datasets":[{"data":[0, 20, 5, 25, 10, 30, 15, 40, 40]}]}}' data-prefix="$" data-suffix="k">
-                      <a href="#" class="nav-link py-2 px-3" data-toggle="tab">
-                        <span class="d-none d-md-block">هفته</span>
-                        <span class="d-md-none">ه</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+          <div class="card">
+              <div class="col">
+                <h3>نقشه بصری ماموریت ها</h3>
+                <div id="map"></div>
               </div>
-            </div>
-            <div class="card-body">
-              <!-- Chart -->
-              <div class="chart">
-                <!-- Chart wrapper -->
-                <canvas id="chart-sales-dark" class="chart-canvas"></canvas>
-              </div>
-            </div>
           </div>
         </div>
         <div class="col-xl-4">
@@ -161,7 +134,7 @@
               <div class="row align-items-center">
                 <div class="col">
                   <h6 class="text-uppercase text-muted mb-1">کارایی</h6>
-                  <h5 class="h3 mb-0">تمامی سفارشات</h5>
+                  <h5 class="h3 mb-0">ماموریت های انجام شده در این ماه</h5>
                 </div>
               </div>
             </div>
@@ -192,10 +165,10 @@
               <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">عنوان صفحه</th>
-                    <th scope="col">بازدیدکنندگان</th>
-                    <th scope="col">کاربران جدید</th>
-                    <th scope="col">نرخ پرش</th>
+                    <th scope="col">راننده</th>
+                    <th scope="col">تعداد ماموریت های موفق</th>
+                    <th scope="col">ماموریت های در حال انجام</th>
+                    <th scope="col">کل مسافت طی شده</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -341,5 +314,62 @@
 <!-- Optional JS -->
 <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
 <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+  /* Set map size */
+  #map {
+      width: 100%;
+      height: 300px;
+      border-radius: 8px;
+  }
+</style>
+
+            <!-- Optionally add Leaflet Draw JS for drawing tools -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-draw/0.4.11/leaflet.draw.js"></script>
+
+            <script>
+                // Create map object
+                var map = L.map('map').setView([35.66190861441717, 51.405578923969244], 13); // Set initial coordinates and zoom level
+
+                // Add OpenStreetMap tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                // Add a marker to the map on click
+                var markers = L.layerGroup().addTo(map);
+
+                map.on('click', function(e) {
+                    var lat = e.latlng.lat;
+                    var lon = e.latlng.lng;
+                    var marker = L.marker([lat, lon]).addTo(markers);
+                    marker.bindPopup("<b>Latitude: " + lat + "<br>Longitude: " + lon + "</b>").openPopup();
+                });
+
+                // Enable drawing tools (markers, polylines)
+                var drawnItems = new L.FeatureGroup();
+                map.addLayer(drawnItems);
+
+                var drawControl = new L.Control.Draw({
+                    edit: {
+                        featureGroup: drawnItems
+                    }
+                });
+                map.addControl(drawControl);
+
+                // Handle drawing event (when a polyline is drawn, for example)
+                map.on('draw:created', function (e) {
+                    var layer = e.layer;
+                    drawnItems.addLayer(layer);
+
+                    // Log the coordinates of the drawn polyline or marker
+                    if (layer instanceof L.Polyline) {
+                        console.log('Polyline coordinates:', layer.getLatLngs());
+                    } else if (layer instanceof L.Marker) {
+                        console.log('Marker coordinates:', layer.getLatLng());
+                    }
+                });
+            </script>
 
 {% endblock javascripts %}

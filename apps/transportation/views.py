@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import DriverForm, CarForm, TaskForm
+from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm
 from .models import Driver, Car, Task
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -90,6 +90,22 @@ def car_delete(request , pk):
     car.delete()
     messages.success(request , "car deleted successfully")
     return render(request , 'transportation/car_delete.html' , {'car':car})
+
+@login_required
+def car_maintenance(request , pk):
+    car = get_object_or_404(Car, pk=pk)
+    if request.method == "POST":
+        form = CarMaintenanceForm(request.POST , instance= car)
+        if form.is_valid():
+            form.save()
+            messages.success(request , "car maintenance update successfully")
+            return redirect('transportation:car_list')
+        else:
+            messages.error(request , "car can't be updated")
+            return render(request , 'transportation/car_maintenance.html' , {'form': form})
+    form = CarMaintenanceForm(instance = car)
+    return render(request , 'transportation/car_maintenance.html' , {'form': form , 'car':car})
+
 
 @login_required
 def task_create(request):

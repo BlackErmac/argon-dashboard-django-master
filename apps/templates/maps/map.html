@@ -1,52 +1,68 @@
 {% extends 'layouts/base.html' %}
-{% block title %} نقشه ها{% endblock title %}
-{% block content %}
+{% block stylesheets %}
+<style>
+  /* Set map size */
+  #map {
+      width: 100%;
+      height: 500px;
+  }
+</style>
+{% endblock stylesheets %}
 
-  <div class="main-content" id="panel">
-    <div class="header bg-primary pb-6">
-      <div class="container-fluid">
-        <div class="header-body">
-          <div class="row align-items-center py-4">
-            <div class="col-lg-6 col-7">
-              <h6 class="h2 text-white d-inline-block mb-0">نقشه گوگل</h6>
-              <nav aria-label="breadcrumb" class="d-none d-md-inline-block mr-md-4">
-                <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                  <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                  <li class="breadcrumb-item"><a href="#">نقشه‌ها</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">نقشه گوگل</li>
-                </ol>
-              </nav>
-            </div>
-            <div class="col-lg-6 col-5 text-left">
-              <a href="#" class="btn btn-sm btn-neutral">جدید</a>
-              <a href="#" class="btn btn-sm btn-neutral">فیلترها</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Page content -->
-    <div class="container-fluid mt--6">
-      <div class="row">
-        <div class="col">
-          <div class="card border-0">
-            <div id="map-default" class="map-canvas" data-lat="40.748817" data-lng="-73.985428" style="height: 600px;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+{% block content %}
+<h1>Interactive Leaflet Map</h1>
+
+<div id="map"></div>
+
+<!-- Include Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- Optionally add Leaflet Draw JS for drawing tools -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-draw/0.4.11/leaflet.draw.js"></script>
+
+<script>
+    // Create map object
+    var map = L.map('map').setView([35.66190861441717, 51.405578923969244], 13); // Set initial coordinates and zoom level
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add a marker to the map on click
+    var markers = L.layerGroup().addTo(map);
+
+    map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lon = e.latlng.lng;
+        var marker = L.marker([lat, lon]).addTo(markers);
+        marker.bindPopup("<b>Latitude: " + lat + "<br>Longitude: " + lon + "</b>").openPopup();
+    });
+
+    // Enable drawing tools (markers, polylines)
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    var drawControl = new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems
+        }
+    });
+    map.addControl(drawControl);
+
+    // Handle drawing event (when a polyline is drawn, for example)
+    map.on('draw:created', function (e) {
+        var layer = e.layer;
+        drawnItems.addLayer(layer);
+
+        // Log the coordinates of the drawn polyline or marker
+        if (layer instanceof L.Polyline) {
+            console.log('Polyline coordinates:', layer.getLatLngs());
+        } else if (layer instanceof L.Marker) {
+            console.log('Marker coordinates:', layer.getLatLng());
+        }
+    });
+</script>
+
 
 {% endblock %}
-
-{% block javascripts %}
-<script src="static/assets/vendor/jquery/dist/jquery.min.js"></script>
-<script src="static/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="static/assets/vendor/js-cookie/js.cookie.js"></script>
-<script src="static/assets/vendor/jquery.scrollbar/jquery.scrollbar.min.js"></script>
-<script src="static/assets/vendor/jquery-scroll-lock/dist/jquery-scrollLock.min.js"></script>
-<!-- Optional JS -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTTfWur0PDbZWPr7Pmq8K3jiDp0_xUziI"></script>
-<!-- Argon JS -->
-<script src="static/assets/js/argon.js?v=1.2.0"></script>
-{% endblock javascripts %}

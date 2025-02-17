@@ -154,6 +154,14 @@ class CarMaintenanceForm(forms.ModelForm):
             'tire_check_each_total_distance':'چک باد تایر به ازای کیلومتر',
             'fuel_check_each_total_distance':'چک سوخت به ازای کیلومتر',
         }
+        widgets = {
+            'car': forms.TextInput(),
+            'oil_check_each_total_distance': forms.TextInput(),
+            'filter_check_each_total_distance': forms.TextInput(),
+            'motor_check_each_total_distance': forms.TextInput(),
+            'tire_check_each_total_distance': forms.TextInput(),
+            'fuel_check_each_total_distance': forms.TextInput(),
+            }
         
     
      

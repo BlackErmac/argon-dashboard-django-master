@@ -3,6 +3,7 @@
 {% block content %}
 
 <div class="container" >
+    <br>
     <h2>خودرو ها</h2>
     <a href="{% url 'transportation:car_create' %}" class="btn btn-success mb-3">ایجاد خودرو جدید</a>
     <table class="table">
@@ -21,6 +22,7 @@
                 <td>
                     <a href="{% url 'transportation:car_update' car.pk %}" class="btn btn-warning btn-sm">بروزرسانی</a>
                     <a href="{% url 'transportation:car_delete' car.pk %}" class = "btn btn-danger btn-sm">حذف</a>
+                    <a href="{% url 'transportation:car_maintenance' car.pk %}" class = "btn btn-info btn-sm">تنظیمات</a>
                 </td>
             </tr>
             {% endfor %}

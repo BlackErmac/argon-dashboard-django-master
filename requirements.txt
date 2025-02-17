@@ -14,6 +14,8 @@ fastapi
 uvicorn
 pillow
 pytz
+gdal==3.10.2
+django-leaflet==0.31.0
 jdatetime
 geojson-tiles==0.1.2
 geojson==3.2.0
