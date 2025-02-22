@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
-from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm
-from .models import Driver, Car, Task
+from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm , CarFilterForm
+from .models import Driver, Car, Task , CarMaintenance
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 
-@login_required
+@login_required(login_url="home/login/")
 def driver_create(request):
     if request.method == 'POST':
         form = DriverForm(request.POST, request.FILES)
@@ -26,7 +26,7 @@ def driver_list(request):
     drivers = Driver.objects.all()
     return render(request, 'transportation/driver_list.html', {'drivers': drivers})
 
-@login_required
+@login_required(login_url="home/login/")
 def driver_update(request , pk):
     driver = get_object_or_404(Driver, pk=pk)
     if request.method == "POST":
@@ -42,14 +42,14 @@ def driver_update(request , pk):
     form = DriverForm(instance = driver)
     return render(request , 'transportation/driver_update.html' , {'form': form})
 
-@login_required
+@login_required(login_url="home/login/")
 def driver_delete(request , pk):
     driver = get_object_or_404(Driver , pk = pk)
     driver.delete()
     messages.success(request , 'driver deleted successfully')
     return render(request , 'transportation/driver_delete.html' , {'driver':driver})
 
-@login_required
+@login_required(login_url="home/login/")
 def car_create(request):
     if request.method == 'POST':
         form = CarForm(request.POST, request.FILES)
@@ -65,11 +65,31 @@ def car_create(request):
     form = CarForm()
     return render(request, 'transportation/car_create.html', {'form': form})
 
+
+# def car_list(request):
+#     cars = Car.objects.all()
+#     return render(request, 'transportation/car_list.html', {'cars': cars})
+
 def car_list(request):
     cars = Car.objects.all()
-    return render(request, 'transportation/car_list.html', {'cars': cars})
+    form = CarFilterForm(request.GET)
 
-@login_required
+    if form.is_valid():
+        company = form.cleaned_data.get("company")
+        car_type = form.cleaned_data.get('car_type')
+
+        if company:
+            cars = cars.filter(company=company)
+        if car_type:
+            cars = cars.filter(car_type = car_type)
+
+    # If HTMX request, return only the table partial
+    if request.headers.get("HX-Request"):
+        return render(request, "transportation/car_table.html", {"cars": cars})
+
+    return render(request, "transportation/car_list.html", {"cars": cars, "form": form})
+
+@login_required(login_url="home/login/")
 def car_update(request , pk):
     car = get_object_or_404(Car, pk=pk)
     if request.method == "POST":
@@ -84,18 +104,18 @@ def car_update(request , pk):
     form = CarForm(instance = car)
     return render(request , 'transportation/car_update.html' , {'form': form , 'car':car})
 
-@login_required
+@login_required(login_url="home/login/")
 def car_delete(request , pk):
     car = get_object_or_404(Car , pk = pk)
     car.delete()
     messages.success(request , "car deleted successfully")
     return render(request , 'transportation/car_delete.html' , {'car':car})
 
-@login_required
+@login_required(login_url="home/login/")
 def car_maintenance(request , pk):
     car = get_object_or_404(Car, pk=pk)
     if request.method == "POST":
-        form = CarMaintenanceForm(request.POST , instance= car)
+        form = CarMaintenanceForm(request.POST , instance=car.car_maintenance)
         if form.is_valid():
             form.save()
             messages.success(request , "car maintenance update successfully")
@@ -103,11 +123,11 @@ def car_maintenance(request , pk):
         else:
             messages.error(request , "car can't be updated")
             return render(request , 'transportation/car_maintenance.html' , {'form': form})
-    form = CarMaintenanceForm(instance = car)
-    return render(request , 'transportation/car_maintenance.html' , {'form': form , 'car':car})
+    form = CarMaintenanceForm(instance = car.car_maintenance)
+    return render(request , 'transportation/car_maintenance.html' , {'form': form , 'car':car_m})
 
 
-@login_required
+@login_required(login_url="home/login/")
 def task_create(request):
     if request.method == 'POST':
         form = TaskForm(request.POST, request.FILES)
@@ -125,7 +145,7 @@ def task_list(request):
     tasks = Task.objects.all()
     return render(request, 'transportation/task_list.html', {'tasks': tasks})
 
-@login_required
+@login_required(login_url="home/login/")
 def task_update(request , pk):
     task = get_object_or_404(Task, pk=pk)
     if request.method == "POST":
@@ -140,14 +160,14 @@ def task_update(request , pk):
     form = TaskForm(instance = task)
     return render(request , 'transportation/task_update.html' , {'form': form})
 
-@login_required
+@login_required(login_url="home/login/")
 def task_delete(request , pk):
     task = get_object_or_404(Task , pk = pk)
     task.delete()
     messages.success(request , "task deleted successfully")
     return render(request , 'transportation/task_delete.html' , {'task':task})
 
-@login_required
+@login_required(login_url="home/login/")
 def task_finish(request , pk):
     task = get_object_or_404(Task , pk = pk)
     task.status = 'closed'
