@@ -1,5 +1,5 @@
 # byte-compiled / optimized / DLL files
-__pycache__/
+*/__pycache__/
 *.py[cod]
 
 # tests and coverage
@@ -17,6 +17,7 @@ venv
 
 # other
 .DS_Store
+test_some_modules
 
 # javascript
 package-lock.json
