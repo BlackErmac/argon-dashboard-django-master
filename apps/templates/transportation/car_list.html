@@ -5,7 +5,7 @@
 <div class="container" >
     <br>
     <h2>خودرو ها</h2>
-    <a href="{% url 'transportation:car_create' %}" class="btn btn-success mb-3">ایجاد خودرو جدید</a>
+    <!-- <a href="{% url 'transportation:car_create' %}" class="btn btn-success mb-3">ایجاد خودرو جدید</a>
     <table class="table">
         <thead>
             <tr>
@@ -27,6 +27,19 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table> -->
+    <form hx-get="{% url 'transportation:car_list' %}" hx-target="#car-table" hx-trigger="change">
+        <div class="block-fields">
+            <p class="inline-fields">
+                 {{ form.company.label }}{{ form.company }}
+                 {{ form.car_type.label }}{{ form.car_type }}
+            </p>
+        </div>
+    </form>
+    
+    <div id="car-table">
+        {% include 'transportation/car_table.html' %}
+    </div>
+
     {% endblock %}
 </div>

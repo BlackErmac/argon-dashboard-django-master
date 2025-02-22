@@ -35,7 +35,7 @@ class Car(models.Model):
 
     COMPANY_CHOICES = [
         ('Toyota' , 'تویوتا'),
-        ('Neisan' , 'سدان'),
+        ('Neisan' , 'نیسان'),
         ('Benz','بنز'),
     ]
 
@@ -66,10 +66,9 @@ class Car(models.Model):
     VIN_number = models.CharField(max_length=20 , null= True , blank = True)
     insurance_number = models.CharField(max_length=20 , unique=True)
     insurance_company = models.CharField(max_length=10 ,choices= INSURANCE_COMPANY , default = 'Asia')
-    car_insurance_start_date = models.DateField(default= timezone.now)
-    car_insurance_end_date = models.DateField(default= timezone.now)
+    car_insurance_start_date = models.DateField()
+    car_insurance_end_date = models.DateField()
     status = models.CharField(max_length=20 ,choices=STATUS_CHOICES , default='available')
-
 
     def clean(self):
         if self.car_insurance_end_date < self.car_insurance_start_date:
@@ -84,6 +83,14 @@ class Car(models.Model):
 
     def __str__(self):
         return f"({self.car_license_plate})"
+    
+    @classmethod
+    def get_count(cls):
+        return {'all_cars': cls.objects.count(),\
+                'available_cars': cls.objects.filter(status='available').count(),\
+                'notavailable_cars':cls.objects.filter(status = 'not available').count(),\
+                'fixing_cars':cls.objects.filter(status = 'fixing').count()}
+
 
 class CarMaintenance(models.Model):
     car = models.ForeignKey(Car , on_delete= models.CASCADE , related_name = 'car_maintenance')
@@ -174,7 +181,13 @@ class Driver(models.Model):
             jalali_date = jdatetime.date.fromgregorian(date=gregorian_date)
             return jalali_date.strftime("%Y/%m/%d")  # Example: 1402/11/18
         return None
-
+    
+    @classmethod
+    def get_count(cls):
+        return {'all_drivers': cls.objects.count(),\
+                'available_drivers': cls.objects.filter(is_available='available').count(),\
+                'notavailable_drivers':cls.objects.filter(is_available = 'not available').count(),\
+                'abscense_drivers':cls.objects.filter(is_available = 'abscense').count()}
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.id})"
@@ -198,6 +211,13 @@ class Task(models.Model):
 
     def __str__(self):
         return f"Task {self.id} - {self.driver.name} - {self.car.name}"
+
+    @classmethod
+    def get_count(cls):
+        return {'all_tasks': cls.objects.count(),\
+                'open_tasks': cls.objects.filter(status='open').count(),\
+                'closed_tasks':cls.objects.filter(status = 'closed').count()}
+
 
     def save(self, *args, **kwargs):
         if self.status == 'open':

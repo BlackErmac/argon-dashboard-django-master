@@ -1,16 +1,19 @@
+from django.shortcuts import render
 from django import template
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from ..transportation.models import Car , Driver , Task
 
 
 @login_required(login_url="/login/")
 def index(request):
-    context = {'segment': 'index'}
+    cars_info = Car.get_count()
+    drivers_info = Driver.get_count()
+    tasks_info = Task.get_count()
 
-    html_template = loader.get_template('home/index.html')
-    return HttpResponse(html_template.render(context, request))
+    return render(request, 'home/index.html', {'cars_info':cars_info , 'drivers_info':drivers_info , 'tasks_info':tasks_info})
 
 
 @login_required(login_url="/login/")

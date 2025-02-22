@@ -1,7 +1,18 @@
 from django import forms
 from .models import Driver, Car, Task , CarMaintenance
 import re
+from django.forms.widgets import DateInput
+import jdatetime
+from jalali_date.fields import JalaliDateField, SplitJalaliDateTimeField
+from jalali_date.widgets import AdminJalaliDateWidget, AdminSplitJalaliDateTime
 
+class PersianDateInput(DateInput):
+    input_type = 'text'  # Use text input for the date picker
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.update({'class': 'persian-datepicker'})  # Add a custom class for styling
+        super().__init__(attrs=attrs)
 
 class DriverForm(forms.ModelForm):
     class Meta:
@@ -80,7 +91,7 @@ class CarForm(forms.ModelForm):
             'car_license_plate' : 'پلاک خودرو',
             'color':'رنگ خودرو',
             'car_type':'نوع خودرو',
-            'usage':'کاربرد' ,
+            'usage':'کارکرد' ,
             'company':'شرکت سازنده',
             'ownership':' مالکیت',
             'production_date':'سال ساخت خودرو',
@@ -111,10 +122,33 @@ class CarForm(forms.ModelForm):
             'VIN_number' : forms.TextInput(attrs={'class':'form-control'}),
             'insurance_number' : forms.TextInput(attrs={'class':'form-control'}),
             'insurance_company' : forms.Select(attrs={'class':'form-control'}),
-            'car_insurance_start_date' : forms.TextInput(attrs={'id': 'datetimepicker'}),
-            'car_insurance_end_date' : forms.TextInput(attrs={'id': 'datetimepicker'}),
+            'car_insurance_start_date' : forms.TextInput(),
+            'car_insurance_end_date' : forms.TextInput(),
             'status' : forms.Select(attrs={'class':'form-control'}),
         }
+
+        def __init__(self, *args, **kwargs):
+            super(Car, self).__init__(*args, **kwargs)
+            self.fields['car_insurance_start_date'] = JalaliDateField(label=_('car_insurance_start_date'), # date format is  "yyyy-mm-dd"
+                widget=AdminJalaliDateWidget # optional, to use default datepicker
+            )
+
+            # you can added a "class" to this field for use your datepicker!
+            # self.fields['date'].widget.attrs.update({'class': 'jalali_date-date'})
+
+            self.fields['date_time'] = SplitJalaliDateTimeField(label=_('date time'), 
+                widget=AdminSplitJalaliDateTime # required, for decompress DatetimeField to JalaliDateField and JalaliTimeField
+            )
+
+        def clean_date(self):
+            car_insurance_end_date = self.clean_date['ar_insurance_end_date']
+            try:
+            # Convert Persian date string (YYYY/MM/DD) to a Gregorian date
+                jalali_date = jdatetime.datetime.strptime(car_insurance_end_date, "%Y/%m/%d")
+                return jalali_date.togregorian().date()  # Convert to Gregorian
+            except ValueError:
+                raise forms.ValidationError("Invalid Persian date format! Use YYYY/MM/DD")
+            
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -140,14 +174,13 @@ class TaskForm(forms.ModelForm):
 class CarMaintenanceForm(forms.ModelForm):
     class Meta:
         model = CarMaintenance
-        fields = ['car','oil_check_each_total_distance',
+        fields = ['oil_check_each_total_distance',
                   'filter_check_each_total_distance',
                   'motor_check_each_total_distance',
                   'tire_check_each_total_distance',
                   'fuel_check_each_total_distance',]
 
         labels = {
-            'car': 'خودرو',
             'oil_check_each_total_distance':'چک روغن به ازای کیلومتر',
             'filter_check_each_total_distance':'چک فیلتر هوا به ازای کیلومتر',
             'motor_check_each_total_distance':'چک موتور به ازای کیلومتر',
@@ -155,7 +188,6 @@ class CarMaintenanceForm(forms.ModelForm):
             'fuel_check_each_total_distance':'چک سوخت به ازای کیلومتر',
         }
         widgets = {
-            'car': forms.TextInput(),
             'oil_check_each_total_distance': forms.TextInput(),
             'filter_check_each_total_distance': forms.TextInput(),
             'motor_check_each_total_distance': forms.TextInput(),
@@ -164,6 +196,14 @@ class CarMaintenanceForm(forms.ModelForm):
             }
         
     
-     
+class CarFilterForm(forms.Form):
+    company = forms.ChoiceField(choices=[("" , "همه شرکت ‌ها")]+Car.COMPANY_CHOICES ,label='شرکت سازنده:' ,  required= False)
+    car_type = forms.ChoiceField(choices=[("" , "همه مدل ها")] + Car.CARTYPE_CHOICES , label= 'مدل:' , required = False)
+    created_at = forms.ChoiceField(choices=[("" , "کل"),("a_week","هفته پیش"),("a_month","ماه پیش"),("a_year" , "سال پیش")] , label='تاریخ ایجاد' , required=False)
+    
+
+
+
+
     
      
