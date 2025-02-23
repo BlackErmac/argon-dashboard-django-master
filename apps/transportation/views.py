@@ -114,8 +114,9 @@ def car_delete(request , pk):
 @login_required(login_url="home/login/")
 def car_maintenance(request , pk):
     car = get_object_or_404(Car, pk=pk)
+    car_m = car.car_maintenance
     if request.method == "POST":
-        form = CarMaintenanceForm(request.POST , instance=car.car_maintenance)
+        form = CarMaintenanceForm(request.POST , instance=car_m)
         if form.is_valid():
             form.save()
             messages.success(request , "car maintenance update successfully")
@@ -123,8 +124,8 @@ def car_maintenance(request , pk):
         else:
             messages.error(request , "car can't be updated")
             return render(request , 'transportation/car_maintenance.html' , {'form': form})
-    form = CarMaintenanceForm(instance = car.car_maintenance)
-    return render(request , 'transportation/car_maintenance.html' , {'form': form , 'car':car_m})
+    form = CarMaintenanceForm(instance = car_m)
+    return render(request , 'transportation/car_maintenance.html' , {'form': form , 'car':car})
 
 
 @login_required(login_url="home/login/")

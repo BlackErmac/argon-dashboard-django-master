@@ -1,7 +1,11 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+import django_jalali.db.models as jmodels
+
 import uuid
 import jdatetime
 
@@ -58,7 +62,7 @@ class Car(models.Model):
     created_at = models.DateTimeField(auto_now_add= True,verbose_name="Creation Date")
     updated_at = models.DateTimeField(auto_now=True,verbose_name="Updated Date")
     created_by = models.ForeignKey(User , on_delete= models.SET_NULL , null = True , blank = True , db_index= True , related_name= 'cars')
-    production_date = models.DateField(default = timezone.now)
+    production_date = jmodels.jDateField(default = timezone.now)
     fuel = models.CharField(max_length=10 ,choices= FUEL_CHOICES , default='petrol')
     load_capacity = models.PositiveIntegerField(null= True , blank = True)
     chassis_number = models.CharField(max_length=20, null= True , blank = True)
@@ -66,8 +70,8 @@ class Car(models.Model):
     VIN_number = models.CharField(max_length=20 , null= True , blank = True)
     insurance_number = models.CharField(max_length=20 , unique=True)
     insurance_company = models.CharField(max_length=10 ,choices= INSURANCE_COMPANY , default = 'Asia')
-    car_insurance_start_date = models.DateField()
-    car_insurance_end_date = models.DateField()
+    car_insurance_start_date = jmodels.jDateField()
+    car_insurance_end_date = jmodels.jDateField()
     status = models.CharField(max_length=20 ,choices=STATUS_CHOICES , default='available')
 
     def clean(self):
@@ -84,6 +88,9 @@ class Car(models.Model):
     def __str__(self):
         return f"({self.car_license_plate})"
     
+    def get_gregorian_date(self):
+        return self.production_date.togregorian()
+    
     @classmethod
     def get_count(cls):
         return {'all_cars': cls.objects.count(),\
@@ -93,27 +100,41 @@ class Car(models.Model):
 
 
 class CarMaintenance(models.Model):
-    car = models.ForeignKey(Car , on_delete= models.CASCADE , related_name = 'car_maintenance')
+    car = models.OneToOneField(Car , on_delete= models.CASCADE , related_name = 'car_maintenance')
     
     oil_check_by_user = models.BooleanField(default=False)
-    oil_check_each_total_distance = models.PositiveIntegerField()
+    oil_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
     oil_check_alarm = models.BooleanField(default=False)
 
     filter_check_by_user = models.BooleanField(default=False)
-    filter_check_each_total_distance = models.PositiveIntegerField()
+    filter_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
     filter_check_alarm = models.BooleanField(default=False)
 
     motor_check_by_user = models.BooleanField(default=False)
-    motor_check_each_total_distance = models.PositiveIntegerField()
+    motor_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
     motor_check_alarm = models.BooleanField(default=False)
 
     tire_check_by_user = models.BooleanField(default=False)
-    tire_check_each_total_distance = models.PositiveIntegerField()
+    tire_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
     tire_check_alarm = models.BooleanField(default=False)
 
     fuel_check_by_user = models.BooleanField(default=False)
-    fuel_check_each_total_distance = models.PositiveIntegerField()
+    fuel_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
     fuel_check_alarm = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"خودرو {self.car.car_license_plate}"
+
+@receiver(post_save , sender = Car)
+def create_car_maintenance(sender , instance , created , **kwargs):
+    if created:
+        CarMaintenance.objects.create(car = instance)
+
+@receiver(post_save , sender = Car)
+def save_car_maintenance(sender , instance , **kwargs):
+    instance.car_maintenance.save()
+
+
 
 class Driver(models.Model):
 

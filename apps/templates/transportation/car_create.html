@@ -1,28 +1,27 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
-{% load jalali_tags %}
 {% block title %} ایجاد خودرو جدید {% endblock title %}
 
 
 {% block stylesheets %}
+    <!-- Persian Datepicker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+
+    <!-- jQuery (Required) -->
+
+
+    <!-- PersianDate and PersianDatepicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
-
-    <!-- jQuery (Required for Persian Datepicker) -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
-
-<!-- Persian Datepicker CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
-
-<!-- Persian Datepicker JS -->
-<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-
 
 {% endblock stylesheets %}
 
 {% block content %}
 
 
-<p>{{ request.user.date_joined|to_jalali:'%y/%m/%d _ %H:%M:%S' }}</p>
+
 
 <div class="container">
     <div class="form-container">
@@ -38,14 +37,11 @@
                 </li>
             {% endfor %}
         </ul>
-    {% endif %}
-
+        {% endif %}
         <form method="post">
             {% csrf_token %}
             <div class="block-fields">
                 <p class="inline-fields"> {{ form.as_p }} </p>
-                <label for="id_jalali_date">انتخاب تاریخ فارسی:</label>
-                <input type="text" id="id_jalali_date" name="jalali_date" class="persian-datepicker form-control">
             </div>
             <p><button type="submit" class="submit-btn">ثبت خودرو</button></p>
 
@@ -58,24 +54,17 @@
 {% block javascripts %}
 <script>
     $(document).ready(function(){
-        console.log("jQuery Loaded:", typeof $ !== "undefined");  // Debugging: Check if jQuery is loaded
-        console.log("Persian Datepicker Loaded:", typeof $.fn.persianDatepicker !== "undefined");  // Debugging: Check if Persian Datepicker is available
-    
-        if ($.fn.persianDatepicker) {
-            $("#id_jalali_date").persianDatepicker({
-                format: "YYYY/MM/DD", // Date format in Persian
-                autoClose: true, // Close after selection
-                observer: true,
-                initialValue: false,
-                toolbox: {
-                    calendarSwitch: {
-                        enabled: true // Allow switching between Jalali & Gregorian
-                    }
+        $(".jalali-datepicker").persianDatepicker({
+            format: 'YYYY-MM-DD',
+            autoClose: true,
+            calendar:{
+                persian: {
+                    locale: 'fa',
+                    showHint: true,
+                    leapYearMode: "algorithmic" 
                 }
-            });
-        } else {
-            console.error("Persian Datepicker is NOT loaded correctly!");
-        }
+            }
+        });
     });
     </script>
 {% endblock javascripts %}

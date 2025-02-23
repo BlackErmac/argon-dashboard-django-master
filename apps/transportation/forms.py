@@ -80,6 +80,7 @@ class DriverForm(forms.ModelForm):
             return driver_phone_number2
 
 class CarForm(forms.ModelForm):
+
     class Meta:
         model = Car
         fields = ['car_license_plate', 'color', 'car_type', 'usage',
@@ -114,7 +115,7 @@ class CarForm(forms.ModelForm):
             'usage': forms.NumberInput(attrs={'class': 'form-control'}),
             'company': forms.Select(attrs={'class': 'form-control'}),
             'ownership' : forms.Select(attrs={'class':'form-control'}),
-            'production_date' :forms.TextInput(attrs={'id': 'datetimepicker', 'placeholder': 'Select date & time'}),
+            'production_date' :forms.TextInput(attrs={'id':"id_jalali_date", 'name':"jalali_date", 'class':"jalali-datepicker form-control"}),
             'fuel' : forms.Select(attrs={'class':'form-control'}),
             'load_capacity' : forms.NumberInput(attrs={'class':'form-control'}),
             'chassis_number' : forms.TextInput(attrs={'class':'form-control'}),
@@ -122,33 +123,18 @@ class CarForm(forms.ModelForm):
             'VIN_number' : forms.TextInput(attrs={'class':'form-control'}),
             'insurance_number' : forms.TextInput(attrs={'class':'form-control'}),
             'insurance_company' : forms.Select(attrs={'class':'form-control'}),
-            'car_insurance_start_date' : forms.TextInput(),
-            'car_insurance_end_date' : forms.TextInput(),
+            'car_insurance_start_date' : forms.TextInput(attrs={'id':"id_jalali_date", 'name':"jalali_date", 'class':"jalali-datepicker form-control"}),
+            'car_insurance_end_date' : forms.TextInput(attrs={'id':"id_jalali_date", 'name':"jalali_date", 'class':"jalali-datepicker form-control"}),
             'status' : forms.Select(attrs={'class':'form-control'}),
         }
 
-        def __init__(self, *args, **kwargs):
-            super(Car, self).__init__(*args, **kwargs)
-            self.fields['car_insurance_start_date'] = JalaliDateField(label=_('car_insurance_start_date'), # date format is  "yyyy-mm-dd"
-                widget=AdminJalaliDateWidget # optional, to use default datepicker
-            )
-
-            # you can added a "class" to this field for use your datepicker!
-            # self.fields['date'].widget.attrs.update({'class': 'jalali_date-date'})
-
-            self.fields['date_time'] = SplitJalaliDateTimeField(label=_('date time'), 
-                widget=AdminSplitJalaliDateTime # required, for decompress DatetimeField to JalaliDateField and JalaliTimeField
-            )
-
-        def clean_date(self):
-            car_insurance_end_date = self.clean_date['ar_insurance_end_date']
-            try:
-            # Convert Persian date string (YYYY/MM/DD) to a Gregorian date
-                jalali_date = jdatetime.datetime.strptime(car_insurance_end_date, "%Y/%m/%d")
-                return jalali_date.togregorian().date()  # Convert to Gregorian
-            except ValueError:
-                raise forms.ValidationError("Invalid Persian date format! Use YYYY/MM/DD")
-            
+    def clean_production_date(self):
+        persian_date = self.cleaned_data['production_date']
+        try:
+            print(persian_date , type(persian_date))
+            return jdatetime.date.fromisoformat(str(persian_date))
+        except ValueError:
+            raise forms.ValidationError("Invalid persian date format. Use YYYY-MM-DD.")
 
 class TaskForm(forms.ModelForm):
     class Meta:
