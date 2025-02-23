@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persian Datepicker Test</title>
+    
+    <!-- Load jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <!-- Load Persian Datepicker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.1.0/dist/css/persian-datepicker.min.css">
+    
+    <!-- Load Persian Datepicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.1.0/dist/js/persian-datepicker.min.js"></script>
+</head>
+<body>
+    <div style="margin: 50px;">
+        <h2>Test Persian Datepicker</h2>
+        <form>
+            <label for="jalali_date">Select Persian Date:</label>
+            <input type="text" id="jalali_date" class="persian-datepicker">
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Debugging: Checking if jQuery and Persian Datepicker are loaded
+            console.log("jQuery Loaded:", typeof $ !== "undefined");
+            console.log("Persian Datepicker Loaded:", typeof $.fn.persianDatepicker !== "undefined");
+
+            if ($.fn.persianDatepicker) {
+                // Initialize Persian Datepicker
+                $("#jalali_date").persianDatepicker({
+                    format: "YYYY/MM/DD",
+                    autoClose: true,
+                    observer: true,
+                    initialValue: false,
+                    toolbox: {
+                        calendarSwitch: { enabled: true }
+                    }
+                });
+            } else {
+                console.error("Persian Datepicker is NOT loaded correctly!");
+            }
+        });
+    </script>
+</body>
+</html>
