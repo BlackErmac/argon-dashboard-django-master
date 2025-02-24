@@ -171,12 +171,12 @@ class Driver(models.Model):
     last_name = models.CharField(max_length=100 , db_index = True)
     age = models.PositiveIntegerField()
     sertificate = models.CharField(max_length=10 , choices=SERTIFICATE_CHOICES , default='p3')
-    sertificate_expiration_date = models.DateField(default=timezone.now)
+    sertificate_expiration_date = jmodels.jDateField()
     experience = models.PositiveIntegerField()
     blood_group = models.CharField(max_length=10 , choices=BLOODGROUP_CHOICES , default= 'A+')
     insurance = models.CharField(max_length= 10 , choices=INSURANCE_CHOICES , default = 'have')
     insurance_num = models.CharField(max_length=12 , null = True , blank = True , db_index = True)
-    birthday_date = models.DateField(default=timezone.now)
+    birthday_date = jmodels.jDateField()
     uuid = models.UUIDField(default=uuid.uuid4 , editable= False , unique=True)
     email = models.EmailField(unique = True , db_index = True)
     home_address = models.TextField()
@@ -197,11 +197,6 @@ class Driver(models.Model):
         ]
         ordering = ['-created_at']
 
-    def gregorian_to_persian(gregorian_date):
-        if gregorian_date:
-            jalali_date = jdatetime.date.fromgregorian(date=gregorian_date)
-            return jalali_date.strftime("%Y/%m/%d")  # Example: 1402/11/18
-        return None
     
     @classmethod
     def get_count(cls):
@@ -225,7 +220,7 @@ class Task(models.Model):
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='tasks')
     duration = models.DurationField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = jmodels.jDateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User , on_delete=models.SET_NULL ,null = True , blank=True, related_name='tasks' , verbose_name='Created By')
 
@@ -238,6 +233,7 @@ class Task(models.Model):
         return {'all_tasks': cls.objects.count(),\
                 'open_tasks': cls.objects.filter(status='open').count(),\
                 'closed_tasks':cls.objects.filter(status = 'closed').count()}
+
 
 
     def save(self, *args, **kwargs):

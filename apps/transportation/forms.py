@@ -1,18 +1,9 @@
 from django import forms
 from .models import Driver, Car, Task , CarMaintenance
 import re
-from django.forms.widgets import DateInput
 import jdatetime
-from jalali_date.fields import JalaliDateField, SplitJalaliDateTimeField
-from jalali_date.widgets import AdminJalaliDateWidget, AdminSplitJalaliDateTime
+from datetime import timedelta
 
-class PersianDateInput(DateInput):
-    input_type = 'text'  # Use text input for the date picker
-    def __init__(self, attrs=None):
-        if attrs is None:
-            attrs = {}
-        attrs.update({'class': 'persian-datepicker'})  # Add a custom class for styling
-        super().__init__(attrs=attrs)
 
 class DriverForm(forms.ModelForm):
     class Meta:
@@ -48,12 +39,12 @@ class DriverForm(forms.ModelForm):
             'identification_code' : forms.TextInput(attrs = {'class' : 'form-control'}),
             'home_address' : forms.TextInput(attrs = {'class':'form-control'}),
             'email' : forms.EmailInput(attrs = {'class':'form-control'}),
-            'birthday_date' : forms.TextInput(attrs={'id': 'datetimepicker'}),
+            'birthday_date' : forms.TextInput(attrs={'id':"id_jalali_date", 'name':"jalali_date", 'class':"jalali-datepicker form-control"}),
             'insurance_num':forms.TextInput(attrs={'class': 'form-control'}),
             'insurance': forms.Select(attrs={'class': 'form-control'}),
             'blood_group': forms.Select(attrs={'class': 'form-control'}),
             'experience' : forms.NumberInput(attrs={'class': 'form-control'}),
-            'sertificate_expiration_date' : forms.TextInput(attrs={'id': 'datetimepicker',}),
+            'sertificate_expiration_date' : forms.TextInput(attrs={'id':"id_jalali_date", 'name':"jalali_date", 'class':"jalali-datepicker form-control"}),
             'sertificate': forms.Select(attrs={'class': 'form-control'}),
             'age': forms.TextInput(attrs={'class': 'form-control' , 'placeholder':'28'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -80,7 +71,6 @@ class DriverForm(forms.ModelForm):
             return driver_phone_number2
 
 class CarForm(forms.ModelForm):
-
     class Meta:
         model = Car
         fields = ['car_license_plate', 'color', 'car_type', 'usage',
@@ -137,6 +127,10 @@ class CarForm(forms.ModelForm):
             raise forms.ValidationError("Invalid persian date format. Use YYYY-MM-DD.")
 
 class TaskForm(forms.ModelForm):
+    duration = forms.IntegerField(
+        min_value=1,
+        label='مدت زمان انجام ماموریت بر حسب ساعت',
+    )
     class Meta:
         model = Task
         fields = ['task_subject','driver', 'car', 'duration', 'status']
@@ -145,7 +139,6 @@ class TaskForm(forms.ModelForm):
             'task_subject' : 'عنوان ماموریت',
             'driver' : 'انتخاب راننده',
             'car':'انتخاب ماشین',
-            'duration':'مدت زمان انجام ماموریت',
             'status' : 'وضعیت ماموریت',
         }
 
@@ -153,10 +146,13 @@ class TaskForm(forms.ModelForm):
             'task_subject': forms.TextInput(),
             'driver': forms.Select(),
             'car': forms.Select(),
-            'duration': forms.DateTimeInput(),
             'status': forms.Select(),
         }
 
+    def clean_duration(self):
+        hours = self.cleaned_data.get('duration')
+        return timedelta(minutes=hours)  # Convert hours to timedelta
+    
 class CarMaintenanceForm(forms.ModelForm):
     class Meta:
         model = CarMaintenance
@@ -185,7 +181,8 @@ class CarMaintenanceForm(forms.ModelForm):
 class CarFilterForm(forms.Form):
     company = forms.ChoiceField(choices=[("" , "همه شرکت ‌ها")]+Car.COMPANY_CHOICES ,label='شرکت سازنده:' ,  required= False)
     car_type = forms.ChoiceField(choices=[("" , "همه مدل ها")] + Car.CARTYPE_CHOICES , label= 'مدل:' , required = False)
-    created_at = forms.ChoiceField(choices=[("" , "کل"),("a_week","هفته پیش"),("a_month","ماه پیش"),("a_year" , "سال پیش")] , label='تاریخ ایجاد' , required=False)
+    days = forms.ChoiceField(choices=[("" , "همه"),("7","هفته پیش"),("30","ماه پیش"),("365" , "سال پیش")] , label='تاریخ ایجاد' , required=False)
+    usage = forms.ChoiceField(choices = [("" , "همه"),("1000" , "کمتر از ۱۰۰۰"),("10000" , "کمتر از ۱۰۰۰۰"),("20000" , "کمتر از ۲۰۰۰۰"),("30000" , "کمتر از ۳۰۰۰۰"),] , label = 'میزان کارکرد' , required=False)
     
 
 

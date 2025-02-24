@@ -37,6 +37,16 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+  <!-- Persian Datepicker CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+
+  <!-- jQuery (Required) -->
+
+
+  <!-- PersianDate and PersianDatepicker JS -->
+  <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+
   {% block stylesheets %}{% endblock stylesheets %}
 
 </head>
@@ -65,6 +75,22 @@
   </div>
 
   {% include "includes/scripts.html" %}
+
+  <script>
+    $(document).ready(function(){
+        $(".jalali-datepicker").persianDatepicker({
+            format: 'YYYY-MM-DD',
+            autoClose: true,
+            calendar:{
+                persian: {
+                    locale: 'fa',
+                    showHint: true,
+                    leapYearMode: "algorithmic" 
+                }
+            }
+        });
+    });
+    </script>
 
   <!-- Specific JS goes HERE --> 
   {% block javascripts %}{% endblock javascripts %}

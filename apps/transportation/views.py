@@ -4,6 +4,8 @@ from .models import Driver, Car, Task , CarMaintenance
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
 
 
 @login_required(login_url="home/login/")
@@ -77,11 +79,18 @@ def car_list(request):
     if form.is_valid():
         company = form.cleaned_data.get("company")
         car_type = form.cleaned_data.get('car_type')
+        days = form.cleaned_data.get('days')
+        usage = form.cleaned_data.get("usage")
 
         if company:
             cars = cars.filter(company=company)
         if car_type:
             cars = cars.filter(car_type = car_type)
+        if days:
+            delta = timezone.now() - timedelta(days = days)
+            cars = cars.filter(created_at__gte = delta)
+        if usage:
+            cars = cars.filter(usage__gte = usage)
 
     # If HTMX request, return only the table partial
     if request.headers.get("HX-Request"):
