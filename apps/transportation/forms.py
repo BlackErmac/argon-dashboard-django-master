@@ -1,8 +1,12 @@
 from django import forms
 from .models import Driver, Car, Task , CarMaintenance
 import re
-import jdatetime
 from datetime import timedelta
+from jdatetime import datetime as jdatetime
+import pytz
+from django.conf import settings
+
+from django.utils import timezone
 
 
 class DriverForm(forms.ModelForm):
@@ -71,10 +75,11 @@ class DriverForm(forms.ModelForm):
             return driver_phone_number2
 
 class CarForm(forms.ModelForm):
+    
     class Meta:
         model = Car
-        fields = ['car_license_plate', 'color', 'car_type', 'usage',
-                  'company', 'ownership', 'production_date', 'fuel', 'load_capacity',
+        fields = ['car_license_plate', 'color', 'car_type', 'initial_usage',
+                  'company', 'ownership', 'production_date','fuel', 'load_capacity',
                   'chassis_number', 'motor_number', 'VIN_number', 'insurance_number', 'insurance_company',
                   'car_insurance_start_date', 'car_insurance_end_date', 'status']
         
@@ -82,7 +87,7 @@ class CarForm(forms.ModelForm):
             'car_license_plate' : 'پلاک خودرو',
             'color':'رنگ خودرو',
             'car_type':'نوع خودرو',
-            'usage':'کارکرد' ,
+            'initial_usage':'کارکرد' ,
             'company':'شرکت سازنده',
             'ownership':' مالکیت',
             'production_date':'سال ساخت خودرو',
@@ -102,7 +107,7 @@ class CarForm(forms.ModelForm):
             'car_license_plate': forms.TextInput(attrs={'class': 'form-control'}),
             'color' : forms.Select(attrs={'class':'form-control'}),
             'car_type' : forms.Select(attrs={'class':'form-control'}),
-            'usage': forms.NumberInput(attrs={'class': 'form-control'}),
+            'initial_usage': forms.NumberInput(attrs={'class': 'form-control'}),
             'company': forms.Select(attrs={'class': 'form-control'}),
             'ownership' : forms.Select(attrs={'class':'form-control'}),
             'production_date' :forms.TextInput(attrs={'id':"id_jalali_date", 'name':"jalali_date", 'class':"jalali-datepicker form-control"}),
@@ -117,23 +122,21 @@ class CarForm(forms.ModelForm):
             'car_insurance_end_date' : forms.TextInput(attrs={'id':"id_jalali_date", 'name':"jalali_date", 'class':"jalali-datepicker form-control"}),
             'status' : forms.Select(attrs={'class':'form-control'}),
         }
-
-    def clean_production_date(self):
-        persian_date = self.cleaned_data['production_date']
-        try:
-            print(persian_date , type(persian_date))
-            return jdatetime.date.fromisoformat(str(persian_date))
-        except ValueError:
-            raise forms.ValidationError("Invalid persian date format. Use YYYY-MM-DD.")
+    
+    
 
 class TaskForm(forms.ModelForm):
     duration = forms.IntegerField(
         min_value=1,
         label='مدت زمان انجام ماموریت بر حسب ساعت',
     )
+    distance = forms.IntegerField(
+        min_value= 0,
+        label = 'مسافت ماموریت بر حسب کیلومتر',
+    )
     class Meta:
         model = Task
-        fields = ['task_subject','driver', 'car', 'duration', 'status']
+        fields = ['task_subject','driver', 'car', 'duration','distance','status']
 
         labels = {
             'task_subject' : 'عنوان ماموریت',
@@ -148,6 +151,8 @@ class TaskForm(forms.ModelForm):
             'car': forms.Select(),
             'status': forms.Select(),
         }
+
+
 
     def clean_duration(self):
         hours = self.cleaned_data.get('duration')

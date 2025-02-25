@@ -6,6 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
+from .utils import car_forms_date_persian_to_latin
+
+
 
 
 @login_required(login_url="home/login/")
@@ -51,9 +54,11 @@ def driver_delete(request , pk):
     messages.success(request , 'driver deleted successfully')
     return render(request , 'transportation/driver_delete.html' , {'driver':driver})
 
+
 @login_required(login_url="home/login/")
 def car_create(request):
     if request.method == 'POST':
+        print(request.POST , 'create')
         form = CarForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
@@ -102,14 +107,16 @@ def car_list(request):
 def car_update(request , pk):
     car = get_object_or_404(Car, pk=pk)
     if request.method == "POST":
-        form = CarForm(request.POST , instance= car)
+        data = request.POST.copy()
+        data = car_forms_date_persian_to_latin(data)
+        form = CarForm(data , instance= car)
         if form.is_valid():
             form.save()
             messages.success(request , "car updated successfully")
             return redirect('transportation:car_list')
         else:
             messages.error(request , "car can't be updated")
-            return render(request , 'transportation/car_update.html' , {'form': form})
+            return render(request , 'transportation/car_update.html' , {'form': form, 'car':car})
     form = CarForm(instance = car)
     return render(request , 'transportation/car_update.html' , {'form': form , 'car':car})
 
@@ -184,3 +191,16 @@ def task_finish(request , pk):
     task.save()
     messages.success(request , "task finished successfully")
     return render(request , 'transportation/task_finish.html' , {'task':task})
+
+def task_finish_update(request , pk):
+    task = get_object_or_404(Task , pk = pk)
+
+    task.car.temporary_usage += task.distance
+    task.car.save()
+
+    car_maintenance_notifications(request , task.car.pk)
+
+
+def car_maintenance_notifications(request , pk):
+    pass
+    

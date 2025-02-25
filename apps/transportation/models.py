@@ -6,6 +6,11 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 import django_jalali.db.models as jmodels
 
+from jalali_date.fields import JalaliDateField
+from jalali_date import date2jalali
+
+from persiantools.jdatetime import JalaliDate
+
 import uuid
 import jdatetime
 
@@ -56,13 +61,14 @@ class Car(models.Model):
     car_license_plate = models.CharField(max_length=20, null= True , blank = True, unique=True , db_index= True)
     color = models.CharField(max_length=10 ,choices = COLORS_CHOICES , default='black')
     car_type = models.CharField(max_length=10 ,choices = CARTYPE_CHOICES , default = 'baari' )
-    usage = models.PositiveIntegerField(blank=True, null=True)
+    initial_usage = models.PositiveIntegerField(default=0)
+    temporary_usage = models.PositiveIntegerField(default=0)
     company = models.CharField(max_length=10 ,choices=COMPANY_CHOICES , default='Toyota')
     ownership = models.CharField(max_length=10 ,choices = OWNERSHIP_CHOICES , default = 'public')
     created_at = models.DateTimeField(auto_now_add= True,verbose_name="Creation Date")
     updated_at = models.DateTimeField(auto_now=True,verbose_name="Updated Date")
     created_by = models.ForeignKey(User , on_delete= models.SET_NULL , null = True , blank = True , db_index= True , related_name= 'cars')
-    production_date = jmodels.jDateField(default = timezone.now)
+    production_date = models.DateField(default=timezone.now)
     fuel = models.CharField(max_length=10 ,choices= FUEL_CHOICES , default='petrol')
     load_capacity = models.PositiveIntegerField(null= True , blank = True)
     chassis_number = models.CharField(max_length=20, null= True , blank = True)
@@ -70,8 +76,8 @@ class Car(models.Model):
     VIN_number = models.CharField(max_length=20 , null= True , blank = True)
     insurance_number = models.CharField(max_length=20 , unique=True)
     insurance_company = models.CharField(max_length=10 ,choices= INSURANCE_COMPANY , default = 'Asia')
-    car_insurance_start_date = jmodels.jDateField()
-    car_insurance_end_date = jmodels.jDateField()
+    car_insurance_start_date = models.DateField(default = timezone.now)
+    car_insurance_end_date = models.DateField(default = timezone.now)
     status = models.CharField(max_length=20 ,choices=STATUS_CHOICES , default='available')
 
     def clean(self):
@@ -85,11 +91,17 @@ class Car(models.Model):
         ]
         ordering = ['-created_at']
 
+    def save(self, *args , **kwargs):
+        if not self.pk:
+            self.temporary_usage = self.initial_usage
+        super().save(*args , **kwargs)
+
     def __str__(self):
         return f"({self.car_license_plate})"
-    
-    def get_gregorian_date(self):
-        return self.production_date.togregorian()
+
+    # def get_production_date(self):
+    #     """Convert stored Gregorian date to Jalali for frontend use"""
+    #     return JalaliDate(self.production_date.year, self.production_date.month, self.production_date.day)
     
     @classmethod
     def get_count(cls):
@@ -218,7 +230,8 @@ class Task(models.Model):
     task_subject = models.CharField(max_length=100)
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name='tasks')
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='tasks')
-    duration = models.DurationField()
+    duration = models.DurationField(default=0)
+    distance = models.IntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
     created_at = jmodels.jDateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -226,7 +239,7 @@ class Task(models.Model):
 
 
     def __str__(self):
-        return f"Task {self.id} - {self.driver.name} - {self.car.name}"
+        return f"Task {self.id} - {self.driver.first_name} - {self.car.car_license_plate}"
 
     @classmethod
     def get_count(cls):
