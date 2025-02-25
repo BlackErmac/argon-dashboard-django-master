@@ -58,7 +58,6 @@ def driver_delete(request , pk):
 @login_required(login_url="home/login/")
 def car_create(request):
     if request.method == 'POST':
-        print(request.POST , 'create')
         form = CarForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
