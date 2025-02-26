@@ -1,0 +1,96 @@
+
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block title %} ایجاد اعلان جدید{% endblock title %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        {% if form.errors %}
+        <ul class="errorlist">
+            {% for field, errors in form.errors.items %}
+                <li><strong>{{ field }}:</strong>
+                    <ul>
+                        {% for error in errors %}
+                            <li style="color: red;">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <!-- <form method="post">
+            {% csrf_token %}
+            <div class="block-fields">
+                <p> {{ form.as_p }} </p>
+                <select id="id_model_type" data-url="{% url 'transportation:get_objects' 'placeholder' %}">
+                    <option value="Car">Car</option>
+                    <option value="Task">Task</option>
+                </select>
+                
+            </div>
+
+            <p><button type="submit" class="submit-btn">ثبت اعلان</button></p>
+        </form> -->
+        <form method="POST">
+            {% csrf_token %}
+            <label for="modelSelect">رسته اعلان:</label>
+            <select id="modelSelect" name="model" 
+                    hx-get="{% url 'transportation:get_objects' 'car' %}" 
+                    hx-trigger="change" 
+                    hx-target="#objectSelect"
+                    hx-swap="innerHTML">
+                <option value="">-- Select a Model --</option>
+                <option value="car" hx-get="{% url 'transportation:get_objects' 'car' %}">Car</option>
+                <option value="task" hx-get="{% url 'transportation:get_objects' 'task' %}">Task</option>
+                <option value="driver" hx-get="{% url 'transportation:get_objects' 'driver' %}">Task</option>
+            </select>
+            <label for="objectSelect">انتخاب مورد:</label>
+            <select id="objectSelect" name="object_id">
+                <option value="">-- Select an Object --</option>
+            </select>
+            {{ form.as_p }}
+        
+            <button type="submit">ایجاد اعلان</button>
+        </form>
+    
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+<!-- <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modelTypeField = document.querySelector("#id_model_type");
+        const objectIdField = document.querySelector("#id_object_id");
+
+        modelTypeField.addEventListener("change", function() {
+            const modelName = modelTypeField.options[modelTypeField.selectedIndex].text;
+            var url = "{% url 'transportation:get_objects' 'MODEL_PLACEHOLDER' %}".replace("MODEL_PLACEHOLDER", modelName);
+
+            fetch(url)  // URL for fetching related objects
+                .then(response => response.json())
+                    .then(data => {
+                        objectIdField.innerHTML = "";
+                        data.objects.forEach(obj => {
+                            var option = document.createElement("option");
+                            option.value = obj.id;
+                            option.textContent = obj.name || obj.title;
+                            objectIdField.appendChild(option);
+                        });
+                    });
+                });
+    });
+</script> -->
+
+
+{% endblock javascripts %}
+
+
