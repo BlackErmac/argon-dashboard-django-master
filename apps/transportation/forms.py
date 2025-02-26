@@ -1,5 +1,5 @@
 from django import forms
-from .models import Driver, Car, Task , CarMaintenance
+from .models import Driver, Car, Task , CarMaintenance , Notification
 import re
 from datetime import timedelta
 from jdatetime import datetime as jdatetime
@@ -7,6 +7,8 @@ import pytz
 from django.conf import settings
 
 from django.utils import timezone
+
+from django.contrib.contenttypes.models import ContentType
 
 
 class DriverForm(forms.ModelForm):
@@ -188,7 +190,20 @@ class CarFilterForm(forms.Form):
     car_type = forms.ChoiceField(choices=[("" , "همه مدل ها")] + Car.CARTYPE_CHOICES , label= 'مدل:' , required = False)
     days = forms.ChoiceField(choices=[("" , "همه"),("7","هفته پیش"),("30","ماه پیش"),("365" , "سال پیش")] , label='تاریخ ایجاد' , required=False)
     usage = forms.ChoiceField(choices = [("" , "همه"),("1000" , "کمتر از ۱۰۰۰"),("10000" , "کمتر از ۱۰۰۰۰"),("20000" , "کمتر از ۲۰۰۰۰"),("30000" , "کمتر از ۳۰۰۰۰"),] , label = 'میزان کارکرد' , required=False)
-    
+
+class DriverFilterForm(forms.Form):
+    pass
+class TaskFilterForm(forms.Form):
+    pass
+
+class NotificationForm(forms.ModelForm):
+    class Meta:
+        model = Notification
+        fields = ['message', 'notification_importance']
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        print(cleaned_data, "###############")
 
 
 

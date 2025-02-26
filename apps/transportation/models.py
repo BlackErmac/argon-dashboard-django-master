@@ -14,6 +14,17 @@ from persiantools.jdatetime import JalaliDate
 import uuid
 import jdatetime
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+def default_maintenance_info():
+    return {
+        'oil_check_alarm': False,
+        'filter_check_alarm': False,
+        'motor_check_alarm': False,
+        'tire_check_alarm' : False,
+        'fuel_check_alarm' : False,
+    }
 
 class Car(models.Model):
 
@@ -112,6 +123,8 @@ class Car(models.Model):
 
 
 class CarMaintenance(models.Model):
+
+
     car = models.OneToOneField(Car , on_delete= models.CASCADE , related_name = 'car_maintenance')
     
     oil_check_by_user = models.BooleanField(default=False)
@@ -134,6 +147,8 @@ class CarMaintenance(models.Model):
     fuel_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
     fuel_check_alarm = models.BooleanField(default=False)
 
+    default_maintenance_info = models.JSONField(default = default_maintenance_info)
+    
     def __str__(self):
         return f"خودرو {self.car.car_license_plate}"
 
@@ -146,7 +161,36 @@ def create_car_maintenance(sender , instance , created , **kwargs):
 def save_car_maintenance(sender , instance , **kwargs):
     instance.car_maintenance.save()
 
+class Notification(models.Model):
 
+    # car_notification = Notification.objects.create(
+    # notification_type='car',
+    # content_type=ContentType.objects.get_for_model(Car),
+    # object_id=car.id,
+    # message="Your car needs maintenance!"
+
+
+    NOTIFICATION_MODEL_TYPES = [
+        ('car', 'Car Notification'),
+        ('task', 'Task Notification'),
+        ('driver' , 'Driver Notification'),
+    ]
+
+    NOTIFICATION_IMPORTANCE = [
+        ('عادی','normal'),
+        ('متوسط','average'),
+        ('فوری', 'urgant'),
+    ]
+
+    message = models.CharField(max_length=100 , blank=True , null = True)
+    notification_model_type = models.CharField(max_length=10, choices=NOTIFICATION_MODEL_TYPES)
+    notification_importance = models.CharField(max_length=10 , choices=NOTIFICATION_IMPORTANCE)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now = True)
+
+    def __str__(self):
+        return f"notification {self.id} related to {self.notification_model_type}"
 
 class Driver(models.Model):
 

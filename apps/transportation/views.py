@@ -1,20 +1,22 @@
 from django.shortcuts import render, redirect
-from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm , CarFilterForm
-from .models import Driver, Car, Task , CarMaintenance
+from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm , CarFilterForm , NotificationForm
+from .models import Driver, Car, Task , CarMaintenance , Notification
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from .utils import car_forms_date_persian_to_latin
-
+from .utils import car_forms_date_persian_to_latin , driver_forms_data_persian_to_latin
+from django.http import JsonResponse
 
 
 
 @login_required(login_url="home/login/")
 def driver_create(request):
     if request.method == 'POST':
-        form = DriverForm(request.POST, request.FILES)
+        data = request.POST.copy()
+        data = driver_forms_data_persian_to_latin(data)
+        form = DriverForm(data, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request , "driver created successfully")
@@ -35,7 +37,9 @@ def driver_list(request):
 def driver_update(request , pk):
     driver = get_object_or_404(Driver, pk=pk)
     if request.method == "POST":
-        form = DriverForm(request.POST , instance=driver)
+        data = request.POST.copy()
+        data = driver_forms_data_persian_to_latin(data)
+        form = DriverForm(data , instance=driver)
         if form.is_valid():
             form.save()
             messages.success(request , "driver updated successfully")
@@ -58,23 +62,20 @@ def driver_delete(request , pk):
 @login_required(login_url="home/login/")
 def car_create(request):
     if request.method == 'POST':
-        form = CarForm(request.POST, request.FILES)
+        data = request.POST.copy()
+        data = car_forms_date_persian_to_latin(data)
+        form = CarForm(data, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request , "car created successfully")
             return redirect('transportation:car_list')
         else:
-            print(form.errors)
             messages.error(request , "car can't be created")
             return render(request, 'transportation/car_create.html', {'form': form})
         
     form = CarForm()
     return render(request, 'transportation/car_create.html', {'form': form})
 
-
-# def car_list(request):
-#     cars = Car.objects.all()
-#     return render(request, 'transportation/car_list.html', {'cars': cars})
 
 def car_list(request):
     cars = Car.objects.all()
@@ -195,11 +196,99 @@ def task_finish_update(request , pk):
     task = get_object_or_404(Task , pk = pk)
 
     task.car.temporary_usage += task.distance
+    delta_distance = task.car.temporary_usage - task.car.initial_usage
     task.car.save()
 
-    car_maintenance_notifications(request , task.car.pk)
+    car_maintenance_notifications(request , task.car.pk , delta_distance)
 
 
-def car_maintenance_notifications(request , pk):
+def car_maintenance_notifications(request , car_pk , delta_distance):
+    car = Car.objects.get(id = car_pk)
     pass
+    # if car.car_maintenance.oil_chek_each_totoal_distance > delta_distance:
+    #     notifications['oil']
+
     
+
+@login_required(login_url="home/login/")
+def notification_create(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        # data = car_forms_date_persian_to_latin(data)
+        form = NotificationForm(data, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request , "notification created successfully")
+            return redirect('transportation:notification_list')
+        else:
+            messages.error(request , "notification can't be created")
+            return render(request, 'transportation/notification_create.html', {'form': form})
+        
+    form = NotificationForm()
+    return render(request, 'transportation/notification_create.html', {'form': form})
+
+
+def notification_list(request):
+    notification = Notification.objects.all()
+    # form = CarFilterForm(request.GET)
+
+    # if form.is_valid():
+    #     company = form.cleaned_data.get("company")
+    #     car_type = form.cleaned_data.get('car_type')
+    #     days = form.cleaned_data.get('days')
+    #     usage = form.cleaned_data.get("usage")
+
+    #     if company:
+    #         cars = cars.filter(company=company)
+    #     if car_type:
+    #         cars = cars.filter(car_type = car_type)
+    #     if days:
+    #         delta = timezone.now() - timedelta(days = days)
+    #         cars = cars.filter(created_at__gte = delta)
+    #     if usage:
+    #         cars = cars.filter(usage__gte = usage)
+
+    ## If HTMX request, return only the table partial
+    # if request.headers.get("HX-Request"):
+    #     return render(request, "transportation/car_table.html", {"cars": cars})
+
+    return render(request, "transportation/notification_list.html", {"notification": notification})#, "form": form})
+
+@login_required(login_url="home/login/")
+def notification_update(request , pk):
+    notification = get_object_or_404(Notification, pk=pk)
+    if request.method == "POST":
+        data = request.POST.copy()
+        # data = car_forms_date_persian_to_latin(data)
+        form = NotificationForm(data , instance= notification)
+        if form.is_valid():
+            form.save()
+            messages.success(request , "notification updated successfully")
+            return redirect('transportation:notification_list')
+        else:
+            messages.error(request , "notification can't be updated")
+            return render(request , 'transportation/notification_update.html' , {'form': form, 'notification':notification})
+    form = NotificationForm(instance = notification)
+    return render(request , 'transportation/car_update.html' , {'form': form , 'notification':notification})
+
+@login_required(login_url="home/login/")
+def notification_delete(request , pk):
+    notification = get_object_or_404(Notification , pk = pk)
+    notification.delete()
+    messages.success(request , "notification deleted successfully")
+    return render(request , 'transportation/notification_delete.html' , {'notification':notification})
+
+
+def get_objects(request , model_name):
+    objects = []
+    if model_name == "car":
+        objects = list(Car.objects.values("id", "car_license_plate"))
+    elif model_name == "task":
+        objects = list(Task.objects.values("id", "title"))
+    elif model_name == "driver":
+        objects = list(Driver.objects.values("id" , "first_name"))
+    
+    print(objects)
+        
+    return render(request, "transportation/notification_objects_options.html", {"objects": objects})
+    # return JsonResponse({"objects": objects})

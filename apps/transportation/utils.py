@@ -19,3 +19,8 @@ def car_forms_date_persian_to_latin(data):
     data['car_insurance_end_date'] = persian_to_latin(data['car_insurance_end_date'])
 
     return data
+
+def driver_forms_data_persian_to_latin(data):
+    data['sertificate_expiration_date'] = persian_to_latin(data['sertificate_expiration_date'])
+    data['birthday'] = persian_to_latin(data['birthday'])
+    

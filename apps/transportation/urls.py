@@ -2,7 +2,9 @@ from django.urls import path
 
 from .views import (driver_create , driver_list , driver_update , driver_delete ,
                     car_create , car_list , car_update , car_delete, car_maintenance,
-                    task_create , task_list , task_delete , task_update , task_finish)
+                    task_create , task_list , task_delete , task_update , task_finish,
+                    notification_create , notification_list , notification_delete , notification_update,
+                    get_objects,)
 
 app_name = 'transportation'
 
@@ -24,4 +26,10 @@ urlpatterns = [
     path('task/<int:pk>/edit/', task_update, name='task_update'),
     path('task/<int:pk>/delete/' , task_delete , name = 'task_delete'),
     path('task/<int:pk>/finish/' , task_finish , name = 'task_finish'),
+    # Notifications URLs
+    path('notification/' , notification_list , name = 'notification_list' ),
+    path('notification/create/', notification_create, name='notification_create'),
+    path('notification/<int:pk>/edit/', notification_update, name='notification_update'),
+    path('notification/<int:pk>/delete/' , notification_delete , name = 'notification_delete'),
+    path("get_objects/<str:model_name>/", get_objects, name="get_objects"),
     ]
