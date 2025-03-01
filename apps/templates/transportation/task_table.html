@@ -1,0 +1,34 @@
+
+<a href="{% url 'transportation:task_create' %}" class="btn btn-success mb-3">ایجاد وظیفه جدید</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>عنوان ماموریت</th>
+                <th>راننده</th>
+                <th>خودرو</th>
+                <th>تاریخ ایجاد</th>
+                <th>تنظیمات</th>
+                <th>وضعیت</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.task_subject }}</td>
+                <td>{{ task.driver }}</td>
+                <td>{{ task.car }}</td>
+                <td>{{ task.created_at }}</td>
+                <td>
+                    <a href="{% url 'transportation:task_update' task.pk %}" class="btn btn-warning btn-sm">بروزرسانی</a>
+                    <a href="{% url 'transportation:task_delete' task.pk %}" class = "btn btn-danger btn-sm">حذف</a>
+                    <a href="{% url 'transportation:task_print' task.pk %}" class = "btn btn-success btn-sm">چاپ</a>
+                </td>
+                {% if task.status == 'open' %}
+                    <td><a href="{% url 'transportation:task_finish' task.pk %}" class = "btn btn-danger btn-sm">{{ task.status }}</a></td>
+                {% else %}
+                    <td><a href="#" class = "btn btn-info btn-sm">{{ task.status }}</a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>

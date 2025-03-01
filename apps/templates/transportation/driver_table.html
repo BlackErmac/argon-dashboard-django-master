@@ -1,0 +1,37 @@
+<a href="{% url 'transportation:driver_create' %}" class="btn btn-success mb-3">ایجاد راننده جدید</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>نام و نام‌خوانوادگی</th>
+                <th>تاریخ ایجاد</th>
+                <th>وضعیت راننده</th>
+                <th>تنظیمات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+            <tr>
+                <td>{{ driver.first_name }} {{ driver.last_name }}</td>
+                <td>{{ driver.created_at }}</td>
+                <td>
+                    {% if driver.is_available == 'available' %}
+                    <p class="btn btn-primary btn-sm">آماده به کار</p>
+                    {% elif driver.is_available == 'not available' %}
+                    <p class="btn btn-secondary btn-sm">در مرخصی</p>
+                    {% else %}
+                    <p class="btn btn-warning btn-sm">در ماموریت</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if driver.is_available == 'at work' %}
+                        <a href="#" class="btn btn-dark btn-sm">قفل تنظیمات به دلیل ماموریت باز</a>
+                    {% else %}
+                        <a href="{% url 'transportation:driver_update' driver.pk %}" class="btn btn-success btn-sm">بروزرسانی</a>
+                        <a href="{% url 'transportation:driver_delete' driver.pk %}" class = "btn btn-danger btn-sm">حذف</a>
+                    {% endif %}      
+                    
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>

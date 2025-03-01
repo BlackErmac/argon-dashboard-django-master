@@ -1,0 +1,26 @@
+<a href="{% url 'transportation:notification_create' %}" class="btn btn-success mb-3">ایجاد اعلان جدید</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>رسته اعلان</th>
+                <th>پیام اعلان</th>
+                <th>وضعیت اعلان</th>
+                <th>تنظیمات اعلان</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for notification in notifications %}
+            <tr>
+                <td>{{ notification.notification_model_type }}</td>
+                <td>{{ notification.message|slice:":25" }}</td>
+                <td ><a href="#" class = "btn btn-success btn-sm">{{ notification.notification_importance }}</a></td>
+                <td>
+                    <a href="{% url 'transportation:notification_update' notification.pk %}" class="btn btn-warning btn-sm">بروزرسانی</a>
+                    <a href="{% url 'transportation:notification_delete' notification.pk %}" class = "btn btn-danger btn-sm">حذف</a>
+                    <a href="{% url 'transportation:notification_detail' notification.pk %}" class = "btn btn-success btn-sm">جزئیات</a>
+                   
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>

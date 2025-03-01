@@ -1,0 +1,10 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="container" >
+    <p>شما با موفقیت اعلان {{ notification.notification_model_type }} {{ notification.message }} را حذف کردید.</p>
+    <a href="{% url 'transportation:notification_list' %}">Click!</a>
+</div>
+
+{% endblock content %}

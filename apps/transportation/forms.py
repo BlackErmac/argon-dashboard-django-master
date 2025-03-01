@@ -153,6 +153,18 @@ class TaskForm(forms.ModelForm):
             'car': forms.Select(),
             'status': forms.Select(),
         }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Filter only available drivers and cars when creating
+        # self.fields['car'].queryset = Car.objects.filter(status='available')
+        # self.fields['driver'].queryset = Driver.objects.filter(status='available')
+
+        # If updating an existing task, disable the fields
+        if self.instance and self.instance.pk:
+            self.fields['car'].disabled = True
+            self.fields['driver'].disabled = True
 
 
 
@@ -188,13 +200,18 @@ class CarMaintenanceForm(forms.ModelForm):
 class CarFilterForm(forms.Form):
     company = forms.ChoiceField(choices=[("" , "همه شرکت ‌ها")]+Car.COMPANY_CHOICES ,label='شرکت سازنده:' ,  required= False)
     car_type = forms.ChoiceField(choices=[("" , "همه مدل ها")] + Car.CARTYPE_CHOICES , label= 'مدل:' , required = False)
-    days = forms.ChoiceField(choices=[("" , "همه"),("7","هفته پیش"),("30","ماه پیش"),("365" , "سال پیش")] , label='تاریخ ایجاد' , required=False)
-    usage = forms.ChoiceField(choices = [("" , "همه"),("1000" , "کمتر از ۱۰۰۰"),("10000" , "کمتر از ۱۰۰۰۰"),("20000" , "کمتر از ۲۰۰۰۰"),("30000" , "کمتر از ۳۰۰۰۰"),] , label = 'میزان کارکرد' , required=False)
-
+    days = forms.ChoiceField(choices=[("" , "همه"),("7","هفته پیش"),("30","ماه پیش"),("365" , "سال پیش")] , label='تاریخ ایجاد:' , required=False)
+    usage = forms.ChoiceField(choices = [("" , "همه"),("1000" , "کمتر از ۱۰۰۰"),("10000" , "کمتر از ۱۰۰۰۰"),("20000" , "کمتر از ۲۰۰۰۰"),("30000" , "کمتر از ۳۰۰۰۰"),] , label = 'میزان کارکرد:' , required=False)
+    status = forms.ChoiceField(choices = [("" , "همه")]+Car.STATUS_CHOICES,label='وضعیت:' ,  required= False)
+    
 class DriverFilterForm(forms.Form):
-    pass
+    sertificate = forms.ChoiceField(choices=[("" , "همه رانندگان")]+Driver.SERTIFICATE_CHOICES , label = 'نوع گواهینامه:', required=False)
+    experience = forms.ChoiceField(choices=[("" , "همه رانندگان"),("5" , "کمتر از 5 سال"),("10","کمتر از 10 سال")], label = 'میزان تجربه:', required=False)
+    is_available = forms.ChoiceField(choices=[("" , "همه رانندگان")]+Driver.AVAILABLE_CHOICES , label = 'وضعیت راننده:', required=False)
+    
 class TaskFilterForm(forms.Form):
-    pass
+    duration = forms.ChoiceField(choices=[("" , "همه ماموریت‌ها:"),("12","ساعتی"),("24","روزانه"),("72","ماهانه")] , label = 'نوع ماموریت:', required=False)
+    status = forms.ChoiceField(choices=[("" , "همه ماموریت‌ها:")]+Task.STATUS_CHOICES , label = 'وضعیت ماموریت:', required=False)
 
 class NotificationForm(forms.ModelForm):
     class Meta:

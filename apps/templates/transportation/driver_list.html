@@ -2,40 +2,23 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container" >
     <br>
     <h2>رانندگان</h2>
-    <a href="{% url 'transportation:driver_create' %}" class="btn btn-success mb-3">ایجاد راننده جدید</a>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>نام و نام‌خوانوادگی</th>
-                <th>تاریخ ایجاد</th>
-                <th>وضعیت راننده</th>
-                <th>تنظیمات</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for driver in drivers %}
-            <tr>
-                <td>{{ driver.first_name }} {{ driver.last_name }}</td>
-                <td>{{ driver.created_at }}</td>
-                <td>
-                    {% if driver.is_available == 'available' %}
-                    <p class="btn btn-primary btn-sm">آماده به کار</p>
-                    {% elif driver.is_available == 'abscense' %}
-                    <p class="btn btn-danger btn-sm">غایب</p>
-                    {% else %}
-                    <p class="btn btn-warning btn-sm">در مرخصی</p>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'transportation:driver_update' driver.pk %}" class="btn btn-success btn-sm">بروزرسانی</a>
-                    <a href="{% url 'transportation:driver_delete' driver.pk %}" class = "btn btn-danger btn-sm">حذف</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <form hx-get="{% url 'transportation:driver_list' %}" hx-target="#driver-table" hx-trigger="change">
+        <div class="block-fields">
+            <p class="inline-fields">
+                 {{ form.sertification.label }}{{ form.sertification }}
+                 {{ form.experience.label }}{{ form.experience }}
+                 {{ form.is_available.label }}{{ form.is_available }}
+
+            </p>
+        </div>
+    </form>
+    
+    <div id="driver-table">
+        {% include 'transportation/driver_table.html' %}
+    </div>
+
     {% endblock %}
 </div>

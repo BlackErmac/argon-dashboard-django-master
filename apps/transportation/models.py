@@ -14,8 +14,6 @@ from persiantools.jdatetime import JalaliDate
 import uuid
 import jdatetime
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 
 def default_maintenance_info():
     return {
@@ -37,7 +35,7 @@ class Car(models.Model):
 
     STATUS_CHOICES = [
         ('available' , 'دردسترس'),
-        ('not available','در حال ماموریت'),
+        ('at work','در حال ماموریت'),
         ('fixing','در حال تعمیر'),
     ]
 
@@ -177,9 +175,9 @@ class Notification(models.Model):
     ]
 
     NOTIFICATION_IMPORTANCE = [
-        ('عادی','normal'),
-        ('متوسط','average'),
-        ('فوری', 'urgant'),
+        ('normal','عادی'),
+        ('average','متوسط'),
+        ('urgant', 'فوری'),
     ]
 
     message = models.CharField(max_length=100 , blank=True , null = True)
@@ -219,7 +217,7 @@ class Driver(models.Model):
     AVAILABLE_CHOICES = [
         ('available' , 'آماده به کار'),
         ('not available' , 'تایم مرخصی'),
-        ('abscense' , 'غایب'),
+        ('at work' , 'در ماموریت'),
 
     ]
 
@@ -227,12 +225,12 @@ class Driver(models.Model):
     last_name = models.CharField(max_length=100 , db_index = True)
     age = models.PositiveIntegerField()
     sertificate = models.CharField(max_length=10 , choices=SERTIFICATE_CHOICES , default='p3')
-    sertificate_expiration_date = jmodels.jDateField()
+    sertificate_expiration_date = models.DateField(default = timezone.now)
     experience = models.PositiveIntegerField()
     blood_group = models.CharField(max_length=10 , choices=BLOODGROUP_CHOICES , default= 'A+')
     insurance = models.CharField(max_length= 10 , choices=INSURANCE_CHOICES , default = 'have')
     insurance_num = models.CharField(max_length=12 , null = True , blank = True , db_index = True)
-    birthday_date = jmodels.jDateField()
+    birthday_date = models.DateField(default = timezone.now)
     uuid = models.UUIDField(default=uuid.uuid4 , editable= False , unique=True)
     email = models.EmailField(unique = True , db_index = True)
     home_address = models.TextField()
@@ -269,16 +267,17 @@ class Task(models.Model):
     STATUS_CHOICES = [
         ('open', 'در حال انجام'),
         ('closed', 'انجام شده'),
+        ('lated' , 'دیرکرد'),
     ]
 
     task_subject = models.CharField(max_length=100)
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name='tasks')
-    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='tasks')
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name='tasks',limit_choices_to={'is_available': 'available'})
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='tasks',limit_choices_to={'status': 'available'})
     duration = models.DurationField(default=0)
     distance = models.IntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
-    created_at = jmodels.jDateField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = jmodels.jDateTimeField(auto_now_add=True)
+    updated_at = jmodels.jDateTimeField(auto_now=True)
     created_by = models.ForeignKey(User , on_delete=models.SET_NULL ,null = True , blank=True, related_name='tasks' , verbose_name='Created By')
 
 

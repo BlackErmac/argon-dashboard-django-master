@@ -4,11 +4,11 @@
 
 <div class="container" >
     <br>
-    <h2>اعلان‌ها</h2>
+    <h2>اعلان{{ notification.pk }}</h2>
     <form hx-get="{% url 'transportation:notification_list' %}" hx-target="#notification-table" hx-trigger="change">
         <div class="block-fields">
             <p class="inline-fields">
-                 {{ form.company.label }}{{ form.company }}
+                 {{ notification.message }} | {{notification.notification_importance }}
 
             </p>
         </div>

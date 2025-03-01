@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect
-from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm , CarFilterForm , NotificationForm
+from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm , CarFilterForm , NotificationForm , DriverFilterForm , TaskFilterForm
 from .models import Driver, Car, Task , CarMaintenance , Notification
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from .utils import car_forms_date_persian_to_latin , driver_forms_data_persian_to_latin
-from django.http import JsonResponse
+from .utils import car_forms_date_persian_to_latin , driver_forms_data_persian_to_latin , create_persian_pdf
+from persiantools.jdatetime import JalaliDate
 
 
 
@@ -19,10 +19,14 @@ def driver_create(request):
         form = DriverForm(data, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request , "driver created successfully")
+            messages.success(request , "راننده با موفقیت ایجاد شد.")
+            # Notification.objects.create(message = 'ایجاد راننده',
+            #                             notification_model_type = 'driver',
+            #                             object_id = int(data['object_id']),
+            #                             notification_importance = ['notification_importance']).save()
             return redirect('transportation:driver_list')
         else:
-            messages.error(request , "driver can't be created")
+            messages.error(request , "خطا در ایجاد راننده!")
             return render(request, 'transportation/driver_create.html', {'form': form})
         
     form = DriverForm()
@@ -31,7 +35,26 @@ def driver_create(request):
 
 def driver_list(request):
     drivers = Driver.objects.all()
-    return render(request, 'transportation/driver_list.html', {'drivers': drivers})
+    form = DriverFilterForm(request.GET)
+
+    if form.is_valid():
+        sertificate = form.cleaned_data.get("sertificate")
+        experience = form.cleaned_data.get('experience')
+        is_available = form.cleaned_data.get('is_available')
+
+        if sertificate:
+            drivers = drivers.filter(sertificate=sertificate)
+        if experience:
+            drivers = drivers.filter(experience__gte = experience)
+        if is_available:
+            drivers = drivers.filter(is_available = is_available)
+
+
+    # If HTMX request, return only the table partial
+    if request.headers.get("HX-Request"):
+        return render(request, "transportation/driver_table.html", {"drivers": drivers})
+
+    return render(request, "transportation/driver_list.html", {"drivers": drivers, "form": form})
 
 @login_required(login_url="home/login/")
 def driver_update(request , pk):
@@ -42,10 +65,10 @@ def driver_update(request , pk):
         form = DriverForm(data , instance=driver)
         if form.is_valid():
             form.save()
-            messages.success(request , "driver updated successfully")
+            messages.success(request , "راننده با موفقیت بروزرسانی شد.")
             return redirect('transportation:driver_list')
         else:
-            messages.error(request , "driver can't be updated")
+            messages.error(request , "خطا در بروزرسانی راننده.")
             return render(request , 'transportation/driver_update.html' , {'form': form})
         
     form = DriverForm(instance = driver)
@@ -55,7 +78,7 @@ def driver_update(request , pk):
 def driver_delete(request , pk):
     driver = get_object_or_404(Driver , pk = pk)
     driver.delete()
-    messages.success(request , 'driver deleted successfully')
+    messages.success(request , 'راننده با موفقیت حذف شد.')
     return render(request , 'transportation/driver_delete.html' , {'driver':driver})
 
 
@@ -67,10 +90,10 @@ def car_create(request):
         form = CarForm(data, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request , "car created successfully")
+            messages.success(request , "خودرو با موفقیت ایجاد شد.")
             return redirect('transportation:car_list')
         else:
-            messages.error(request , "car can't be created")
+            messages.error(request , "خطا در ایجاد خودرو!")
             return render(request, 'transportation/car_create.html', {'form': form})
         
     form = CarForm()
@@ -86,6 +109,7 @@ def car_list(request):
         car_type = form.cleaned_data.get('car_type')
         days = form.cleaned_data.get('days')
         usage = form.cleaned_data.get("usage")
+        status = form.cleaned_data.get("status")
 
         if company:
             cars = cars.filter(company=company)
@@ -96,6 +120,8 @@ def car_list(request):
             cars = cars.filter(created_at__gte = delta)
         if usage:
             cars = cars.filter(usage__gte = usage)
+        if status:
+            cars = cars.filter(status = status)
 
     # If HTMX request, return only the table partial
     if request.headers.get("HX-Request"):
@@ -112,10 +138,10 @@ def car_update(request , pk):
         form = CarForm(data , instance= car)
         if form.is_valid():
             form.save()
-            messages.success(request , "car updated successfully")
+            messages.success(request , "خودرو با موفقیت بروزرسانی شد.")
             return redirect('transportation:car_list')
         else:
-            messages.error(request , "car can't be updated")
+            messages.error(request , "خطا در بروزرسانی خودرو!")
             return render(request , 'transportation/car_update.html' , {'form': form, 'car':car})
     form = CarForm(instance = car)
     return render(request , 'transportation/car_update.html' , {'form': form , 'car':car})
@@ -124,7 +150,7 @@ def car_update(request , pk):
 def car_delete(request , pk):
     car = get_object_or_404(Car , pk = pk)
     car.delete()
-    messages.success(request , "car deleted successfully")
+    messages.success(request , "خودرو با موفقیت حذف شد.")
     return render(request , 'transportation/car_delete.html' , {'car':car})
 
 @login_required(login_url="home/login/")
@@ -135,10 +161,10 @@ def car_maintenance(request , pk):
         form = CarMaintenanceForm(request.POST , instance=car_m)
         if form.is_valid():
             form.save()
-            messages.success(request , "car maintenance update successfully")
+            messages.success(request , "تنظیمات خودرو با موفقیت ثیت شد.")
             return redirect('transportation:car_list')
         else:
-            messages.error(request , "car can't be updated")
+            messages.error(request , "خطا در ثبت تنظیمات خودرو!")
             return render(request , 'transportation/car_maintenance.html' , {'form': form})
     form = CarMaintenanceForm(instance = car_m)
     return render(request , 'transportation/car_maintenance.html' , {'form': form , 'car':car})
@@ -148,19 +174,45 @@ def car_maintenance(request , pk):
 def task_create(request):
     if request.method == 'POST':
         form = TaskForm(request.POST, request.FILES)
+
         if form.is_valid():
             form.save()
-            messages.success(request , "task created successfully")
+            
+            car = Car.objects.get(pk = request.POST['car'])
+            driver = Driver.objects.get(pk = request.POST['driver'])
+            status = 'at work' if request.POST['status'] in ['open','lated'] else 'available'
+            car.status , driver.is_available = status , status
+            car.save()
+            driver.save()
+            
+            messages.success(request , "ماموریت با موفقیت ایجاد شد.")
             return redirect('transportation:task_list')
+            
         else:
-            messages.error(request , "task can't be created")
+            messages.error(request , "مقادیر فرم به درستی وارد نشده اند.")
             return render(request, 'transportation/task_create.html', {'form': form})
+        
     form = TaskForm()
     return render(request, 'transportation/task_create.html', {'form': form})
 
 def task_list(request):
     tasks = Task.objects.all()
-    return render(request, 'transportation/task_list.html', {'tasks': tasks})
+    form = TaskFilterForm(request.GET)
+
+    if form.is_valid():
+        duration = form.cleaned_data.get("duration")
+        status = form.cleaned_data.get('status')
+
+        if duration:
+            tasks = tasks.filter(duration__gte=duration)
+        if status:
+            tasks = tasks.filter(status = status)
+
+    # If HTMX request, return only the table partial
+    if request.headers.get("HX-Request"):
+        return render(request, "transportation/task_table.html", {"tasks": tasks})
+
+    return render(request, "transportation/task_list.html", {"tasks": tasks, "form": form})
 
 @login_required(login_url="home/login/")
 def task_update(request , pk):
@@ -169,10 +221,18 @@ def task_update(request , pk):
         form = TaskForm(request.POST , instance=task)
         if form.is_valid():
             form.save()
-            messages.success(request , "task updated successfully")
+            
+            car = Car.objects.get(pk = request.POST['car'])
+            driver = Driver.objects.get(pk = request.POST['driver'])
+            status = 'at work' if request.POST['status'] in ['open','lated'] else 'available'
+            car.status , driver.is_available = status , status
+            car.save()
+            driver.save()
+            
+            messages.success(request , "ماموریت با موفقیت بروزرسانی شد.")
             return redirect('transportation:task_list')
         else:
-            messages.error(request , "task can't be updated")
+            messages.error(request , "ماموریت بروزرسانی نشد.")
             return render(request , 'transportation/task_update.html' , {'form': form})
     form = TaskForm(instance = task)
     return render(request , 'transportation/task_update.html' , {'form': form})
@@ -180,16 +240,23 @@ def task_update(request , pk):
 @login_required(login_url="home/login/")
 def task_delete(request , pk):
     task = get_object_or_404(Task , pk = pk)
+    abondon_car_driver_from_task(task.driver.id , task.car.id)
     task.delete()
-    messages.success(request , "task deleted successfully")
+    messages.success(request , "ماموریت با موفقیت حذف شد.")
     return render(request , 'transportation/task_delete.html' , {'task':task})
 
 @login_required(login_url="home/login/")
 def task_finish(request , pk):
     task = get_object_or_404(Task , pk = pk)
+    abondon_car_driver_from_task(task.driver.id , task.car.id)
+    Notification.objects.create(message = f'اتمام ماموریت{task.task_subject} ',
+                                        notification_model_type ='task',
+                                        object_id = task.pk,
+                                        notification_importance = 'normal').save()
+
     task.status = 'closed'
     task.save()
-    messages.success(request , "task finished successfully")
+    messages.success(request , "ماموریت با موفقیت انجام شد.")
     return render(request , 'transportation/task_finish.html' , {'task':task})
 
 def task_finish_update(request , pk):
@@ -199,14 +266,48 @@ def task_finish_update(request , pk):
     delta_distance = task.car.temporary_usage - task.car.initial_usage
     task.car.save()
 
-    car_maintenance_notifications(request , task.car.pk , delta_distance)
+    car_maintenance_notifications(task.car , delta_distance)
+
+def abondon_car_driver_from_task(driver , car):
+    car = Car.objects.get(pk = car)
+    driver = Driver.objects.get(pk = driver)
+    status = 'available'
+    car.status , driver.is_available = status , status
+    car.save()
+    driver.save()
+    
+def add_car_driver_to_task(driver , car):
+    car = Car.objects.get(pk = car)
+    driver = Driver.objects.get(pk = driver)
+    status = 'at work'
+    car.status , driver.is_available = status , status
+    car.save()
+    driver.save()
+
+def task_print(request , pk):
+    task = get_object_or_404(Task , pk = pk)
+    persian_date = JalaliDate(task.created_at)
+    data = {'task_subject': task.task_subject ,
+            'car' : task.car.car_license_plate ,
+            'driver':task.driver.first_name + task.driver.last_name,
+            'driver_id':task.driver.identification_code,
+            'duration' : task.duration,
+            'created_by' : persian_date}
+    file_name = str(task.task_subject) + str(persian_date)
+    create_persian_pdf(file_name , data)
+    
+    return render(request , 'transportation/task_print.html' , {'task':task , 'filename':file_name})
+    
+    
 
 
-def car_maintenance_notifications(request , car_pk , delta_distance):
-    car = Car.objects.get(id = car_pk)
-    pass
-    # if car.car_maintenance.oil_chek_each_totoal_distance > delta_distance:
-    #     notifications['oil']
+def car_maintenance_notifications(car , delta_distance):
+
+    if car.car_maintenance.oil_chek_each_totoal_distance > delta_distance:
+        Notification.objects.create(message = 'چک کردن روغن',
+                                        notification_model_type = 'car',
+                                        object_id =car.pk,
+                                        notification_importance = 'urgant').save()
 
     
 
@@ -214,14 +315,16 @@ def car_maintenance_notifications(request , car_pk , delta_distance):
 def notification_create(request):
     if request.method == 'POST':
         data = request.POST.copy()
-        # data = car_forms_date_persian_to_latin(data)
         form = NotificationForm(data, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request , "notification created successfully")
+            Notification.objects.create(message = data['message'],
+                                        notification_model_type = data['model'],
+                                        object_id = int(data['object_id']),
+                                        notification_importance = data['notification_importance']).save()
+            messages.success(request , "اعلان با موفقیت ایجاد شد.")
             return redirect('transportation:notification_list')
         else:
-            messages.error(request , "notification can't be created")
+            messages.error(request , "خطا در ایجاد اعلان!")
             return render(request, 'transportation/notification_create.html', {'form': form})
         
     form = NotificationForm()
@@ -229,8 +332,8 @@ def notification_create(request):
 
 
 def notification_list(request):
-    notification = Notification.objects.all()
-    # form = CarFilterForm(request.GET)
+    notifications = Notification.objects.all()
+    # form = NotificationForm(request.GET)
 
     # if form.is_valid():
     #     company = form.cleaned_data.get("company")
@@ -248,11 +351,11 @@ def notification_list(request):
     #     if usage:
     #         cars = cars.filter(usage__gte = usage)
 
-    ## If HTMX request, return only the table partial
+    # # If HTMX request, return only the table partial
     # if request.headers.get("HX-Request"):
     #     return render(request, "transportation/car_table.html", {"cars": cars})
 
-    return render(request, "transportation/notification_list.html", {"notification": notification})#, "form": form})
+    return render(request, "transportation/notification_list.html", {"notifications": notifications})#, "form": form})
 
 @login_required(login_url="home/login/")
 def notification_update(request , pk):
@@ -263,10 +366,10 @@ def notification_update(request , pk):
         form = NotificationForm(data , instance= notification)
         if form.is_valid():
             form.save()
-            messages.success(request , "notification updated successfully")
+            messages.success(request , "اعلان با موفقیت بروزرسانی شد.")
             return redirect('transportation:notification_list')
         else:
-            messages.error(request , "notification can't be updated")
+            messages.error(request , "خطا در بروزرسانی اعلان!")
             return render(request , 'transportation/notification_update.html' , {'form': form, 'notification':notification})
     form = NotificationForm(instance = notification)
     return render(request , 'transportation/car_update.html' , {'form': form , 'notification':notification})
@@ -278,17 +381,26 @@ def notification_delete(request , pk):
     messages.success(request , "notification deleted successfully")
     return render(request , 'transportation/notification_delete.html' , {'notification':notification})
 
+def notification_detail(request , pk):
+    notification = get_object_or_404(Notification , pk = pk)
+    return render(request , 'transportation/notification_detail.html' , {'notification':notification})
 
-def get_objects(request , model_name):
-    objects = []
-    if model_name == "car":
-        objects = list(Car.objects.values("id", "car_license_plate"))
-    elif model_name == "task":
-        objects = list(Task.objects.values("id", "title"))
-    elif model_name == "driver":
-        objects = list(Driver.objects.values("id" , "first_name"))
+
+def get_objects(request):
     
-    print(objects)
+    model = request.GET.get('model')  # Get selected model
+    print(request.GET)
+    objects = []
+    
+    if model == "car":
+        objects = list(Car.objects.values("id", "car_license_plate"))
+    elif model == "task":
+        objects = list(Task.objects.values("id", "task_subject"))
+    elif model == "driver":
+        objects = list(Driver.objects.values("id" , "first_name"))
         
-    return render(request, "transportation/notification_objects_options.html", {"objects": objects})
+    return render(request, "transportation/notification_objects_options.html", {"objects": objects , "model":model})
     # return JsonResponse({"objects": objects})
+    
+    
+    

@@ -1,4 +1,17 @@
 <option value="">-- Select an Object --</option>
-{% for obj in objects %}
-    <option value="{{ obj.id }}">{{ obj.car_license_plate }}</option>
-{% endfor %}
+{% if model == 'car'%}
+    {% for obj in objects %}
+        <option value="{{ obj.id }}">{{ obj.car_license_plate }}</option>
+    {% endfor %}
+
+{% elif model == 'driver' %}
+    {% for obj in objects %}
+        <option value="{{ obj.id }}">{{ obj.first_name }}</option>
+    {% endfor %}
+
+{% elif model == 'task' %}
+    {% for obj in objects %}
+        <option value="{{ obj.id }}">{{ obj.task_subject }}</option>
+    {% endfor %}
+
+{% endif %}
