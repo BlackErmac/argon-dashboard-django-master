@@ -303,3 +303,20 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        
+        
+# maps/models.py
+from django.db import models
+from django.contrib.gis.db import models as geomodels
+
+class PredefinedPoint(models.Model):
+    name = models.CharField(max_length=100)
+    location = geomodels.PointField()  # Stores latitude & longitude
+
+    def __str__(self):
+        return self.name
+
+class SelectedPoint(models.Model):
+    point = models.ForeignKey(PredefinedPoint, on_delete=models.CASCADE)
+    user = models.CharField(max_length=100)  # Example: Save user's name or ID
+    selected_at = models.DateTimeField(auto_now_add=True)

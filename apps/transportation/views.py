@@ -8,7 +8,8 @@ from django.utils import timezone
 from datetime import timedelta
 from .utils import car_forms_date_persian_to_latin , driver_forms_data_persian_to_latin , create_persian_pdf
 from persiantools.jdatetime import JalaliDate
-
+from django.http import JsonResponse
+from .models import PredefinedPoint, SelectedPoint
 
 
 @login_required(login_url="home/login/")
@@ -320,7 +321,7 @@ def notification_create(request):
             Notification.objects.create(message = data['message'],
                                         notification_model_type = data['model'],
                                         object_id = int(data['object_id']),
-                                        notification_importance = data['notification_importance']).save()
+                                        notification_importance = ['notification_importance']).save()
             messages.success(request , "اعلان با موفقیت ایجاد شد.")
             return redirect('transportation:notification_list')
         else:
@@ -402,5 +403,26 @@ def get_objects(request):
     return render(request, "transportation/notification_objects_options.html", {"objects": objects , "model":model})
     # return JsonResponse({"objects": objects})
     
+
     
-    
+def map_view(request):
+    return render(request, 'maps/map.html')
+
+def predefined_points(request):
+    points = PredefinedPoint.objects.all()
+    data = [
+        {"id": p.id, "name": p.name, "lat": p.location.y, "lng": p.location.x}
+        for p in points
+    ]
+    return JsonResponse({"points": data})
+
+def save_selected_point(request):
+    if request.method == "POST":
+        point_id = request.POST.get("point_id")
+        user = request.POST.get("user", "anonymous")  # Example: Replace with auth user
+
+        point = PredefinedPoint.objects.get(id=point_id)
+        SelectedPoint.objects.create(point=point, user=user)
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"error": "Invalid request"}, status=400)

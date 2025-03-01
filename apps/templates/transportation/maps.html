@@ -1,0 +1,76 @@
+<!-- templates/maps/map.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map { height: 500px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <h2>Select a Predefined Point</h2>
+    <div id="map"></div>
+
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([35.6892, 51.3890], 10); // Example: Centered on Tehran
+
+        // Add OpenStreetMap layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18
+        }).addTo(map);
+
+        // Load predefined points
+        fetch("/map/api/predefined-points/")
+        .then(response => response.json())
+        .then(data => {
+            data.points.forEach(point => {
+                var marker = L.marker([point.lat, point.lng]).addTo(map)
+                    .bindPopup(`<b>${point.name}</b><br><button onclick="selectPoint(${point.id})">Select</button>`);
+            });
+        });
+
+        // Function to select a point
+        function selectPoint(pointId) {
+            fetch("/map/api/save-selected-point/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCookie("csrftoken") // CSRF protection
+                },
+                body: `point_id=${pointId}&user=guest`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Point selected successfully!");
+                } else {
+                    alert("Error selecting point.");
+                }
+            });
+        }
+
+        // Function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+</body>
+</html>

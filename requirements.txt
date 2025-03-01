@@ -21,3 +21,4 @@ geojson-tiles==0.1.2
 geojson==3.2.0
 persiantools==5.2.0
 reportlab
+django-geojson
