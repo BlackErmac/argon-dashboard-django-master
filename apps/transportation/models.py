@@ -274,7 +274,7 @@ class Task(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name='tasks',limit_choices_to={'is_available': 'available'})
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='tasks',limit_choices_to={'status': 'available'})
     duration = models.DurationField(default=0)
-    distance = models.IntegerField(default=0)
+    distance = models.FloatField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
     created_at = jmodels.jDateTimeField(auto_now_add=True)
     updated_at = jmodels.jDateTimeField(auto_now=True)

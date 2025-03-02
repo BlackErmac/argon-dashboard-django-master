@@ -127,13 +127,13 @@ class TaskForm(forms.ModelForm):
         min_value=1,
         label='مدت زمان انجام ماموریت بر حسب ساعت',
     )
-    distance = forms.IntegerField(
+    distance = forms.FloatField(
         min_value= 0,
         label = 'مسافت ماموریت بر حسب کیلومتر',
     )
     class Meta:
         model = Task
-        fields = ['task_subject','driver', 'car', 'duration','distance','status']
+        fields = ['task_subject','driver', 'car', 'duration','status' ,'distance']
 
         labels = {
             'task_subject' : 'عنوان ماموریت',

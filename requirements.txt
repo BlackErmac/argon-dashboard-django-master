@@ -24,3 +24,4 @@ reportlab
 bidi-python
 arabic-reshaper
 django-geojson
+geopy

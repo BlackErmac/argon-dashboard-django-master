@@ -472,6 +472,7 @@ def map_view(request):
 def save_route(request):
     if request.method == "POST":
         data = json.loads(request.body)
+          
         point1_id = data.get("point1")
         point2_id = data.get("point2")
 
@@ -481,9 +482,8 @@ def save_route(request):
 
             distance = geodesic((start.latitude, start.longitude), (end.latitude, end.longitude)).km
             Route.objects.create(start_point=start, end_point=end, distance_km=distance)
-
-            print({"status": "success", "distance_km": distance})
-
+            
+            
             return JsonResponse({"status": "success", "distance_km": distance})
 
     return JsonResponse({"status": "error", "message": "Invalid data"}, status=400)
