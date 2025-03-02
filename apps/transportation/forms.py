@@ -3,12 +3,7 @@ from .models import Driver, Car, Task , CarMaintenance , Notification
 import re
 from datetime import timedelta
 from jdatetime import datetime as jdatetime
-import pytz
-from django.conf import settings
 
-from django.utils import timezone
-
-from django.contrib.contenttypes.models import ContentType
 
 
 class DriverForm(forms.ModelForm):

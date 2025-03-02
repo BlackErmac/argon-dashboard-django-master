@@ -6,10 +6,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from .utils import car_forms_date_persian_to_latin , driver_forms_data_persian_to_latin , create_persian_pdf
+from .utils import car_forms_date_persian_to_latin , driver_forms_data_persian_to_latin , create_persian_pdf , load_predefined_points
 from persiantools.jdatetime import JalaliDate
 from django.http import JsonResponse
-from .models import PredefinedPoint, SelectedPoint
+import json
+from django.http import JsonResponse
+from django.shortcuts import render
+from geopy.distance import geodesic
+from django.views.decorators.csrf import csrf_exempt
+from .models import PredefinedPoint, Route
+
 
 
 @login_required(login_url="home/login/")
@@ -20,11 +26,12 @@ def driver_create(request):
         form = DriverForm(data, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request , "راننده با موفقیت ایجاد شد.")
-            # Notification.objects.create(message = 'ایجاد راننده',
-            #                             notification_model_type = 'driver',
-            #                             object_id = int(data['object_id']),
-            #                             notification_importance = ['notification_importance']).save()
+            print(data)
+            driver_information = data['first_name'] + data['last_name']
+            messages.success(request , f"با موفقیت ایجاد شد. {driver_information}راننده ")
+            Notification.objects.create(message = f' ایجاد راننده {driver_information}',
+                                        notification_model_type = 'driver',
+                                        notification_importance = 'normal').save()
             return redirect('transportation:driver_list')
         else:
             messages.error(request , "خطا در ایجاد راننده!")
@@ -66,7 +73,11 @@ def driver_update(request , pk):
         form = DriverForm(data , instance=driver)
         if form.is_valid():
             form.save()
-            messages.success(request , "راننده با موفقیت بروزرسانی شد.")
+            driver_information = data['first_name'] + data['last_name']
+            messages.success(request , f"با موفقیت بروزرسانی شد. {driver_information}راننده ")
+            Notification.objects.create(message = f' بروزرسانی راننده {driver_information}',
+                                        notification_model_type = 'driver',
+                                        notification_importance = 'normal').save()
             return redirect('transportation:driver_list')
         else:
             messages.error(request , "خطا در بروزرسانی راننده.")
@@ -79,7 +90,12 @@ def driver_update(request , pk):
 def driver_delete(request , pk):
     driver = get_object_or_404(Driver , pk = pk)
     driver.delete()
-    messages.success(request , 'راننده با موفقیت حذف شد.')
+    driver_information = driver.first_name + driver.last_name
+    messages.success(request , f"با موفقیت حذف شد. {driver_information}راننده ")
+    Notification.objects.create(message = f' حذف راننده {driver_information}',
+                                notification_model_type = 'driver',
+                                notification_importance = 'warning').save()
+
     return render(request , 'transportation/driver_delete.html' , {'driver':driver})
 
 
@@ -91,7 +107,11 @@ def car_create(request):
         form = CarForm(data, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request , "خودرو با موفقیت ایجاد شد.")
+            car_information = data['car_license_plate']
+            messages.success(request , f"با موفقیت ایجاد شد. {car_information}خودرو ")
+            Notification.objects.create(message = f' ایجاد خودرو {car_information}',
+                                        notification_model_type = 'car',
+                                        notification_importance = 'normal').save()
             return redirect('transportation:car_list')
         else:
             messages.error(request , "خطا در ایجاد خودرو!")
@@ -139,7 +159,12 @@ def car_update(request , pk):
         form = CarForm(data , instance= car)
         if form.is_valid():
             form.save()
-            messages.success(request , "خودرو با موفقیت بروزرسانی شد.")
+            car_information = data['car_license_plate']
+            messages.success(request , f"با موفقیت بروزرسانی شد. {car_information}خودرو ")
+            Notification.objects.create(message = f' بروزرسانی خودرو {car_information}',
+                                        notification_model_type = 'car',
+                                        notification_importance = 'normal').save()
+
             return redirect('transportation:car_list')
         else:
             messages.error(request , "خطا در بروزرسانی خودرو!")
@@ -151,7 +176,11 @@ def car_update(request , pk):
 def car_delete(request , pk):
     car = get_object_or_404(Car , pk = pk)
     car.delete()
-    messages.success(request , "خودرو با موفقیت حذف شد.")
+    car_information = car.car_license_plate
+    messages.success(request , f"با موفقیت حذف شد. {car_information}خودرو ")
+    Notification.objects.create(message = f' حذف خودرو {car_information}',
+                                    notification_model_type = 'car',
+                                    notification_importance = 'warning').save()
     return render(request , 'transportation/car_delete.html' , {'car':car})
 
 @login_required(login_url="home/login/")
@@ -162,7 +191,11 @@ def car_maintenance(request , pk):
         form = CarMaintenanceForm(request.POST , instance=car_m)
         if form.is_valid():
             form.save()
-            messages.success(request , "تنظیمات خودرو با موفقیت ثیت شد.")
+            car_information = car.car_license_plate
+            messages.success(request , f"تنظیمات خودرو {car_information} با موفقیت بروزرسانی شد.")
+            Notification.objects.create(message = f'تنظیمات خودرو {car_information}',
+                                    notification_model_type = 'car',
+                                    notification_importance = 'normal').save()
             return redirect('transportation:car_list')
         else:
             messages.error(request , "خطا در ثبت تنظیمات خودرو!")
@@ -186,7 +219,13 @@ def task_create(request):
             car.save()
             driver.save()
             
-            messages.success(request , "ماموریت با موفقیت ایجاد شد.")
+            task_information = request.POST['task_subject']
+            messages.success(request , f"ماموریت {task_information} با موفقیت ایجاد شد.")
+
+            notification_create_api(message = f'ایجاد ماموریت {task_information}',model_name = 'task' , importance = 'normal')
+            notification_create_api(message = f'تغییر وضعیت راننده {driver.first_name} {driver.last_name} از آماده به کار به در ماموریت',model_name = 'driver' , importance = 'normal')
+            notification_create_api(message = f'تغییر وضعیت خودرو {car.car_license_plate} از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
+    
             return redirect('transportation:task_list')
             
         else:
@@ -230,7 +269,11 @@ def task_update(request , pk):
             car.save()
             driver.save()
             
-            messages.success(request , "ماموریت با موفقیت بروزرسانی شد.")
+            task_information = request.POST['task_subject']
+            messages.success(request , f"ماموریت {task_information} با موفقیت بروزرسانی شد.")
+            Notification.objects.create(message = f'بروزرسانی ماموریت {task_information}',
+                                    notification_model_type = 'task',
+                                    notification_importance = 'normal').save()
             return redirect('transportation:task_list')
         else:
             messages.error(request , "ماموریت بروزرسانی نشد.")
@@ -242,6 +285,9 @@ def task_update(request , pk):
 def task_delete(request , pk):
     task = get_object_or_404(Task , pk = pk)
     abondon_car_driver_from_task(task.driver.id , task.car.id)
+    notification_create_api(message = f'حذف ماموریت {task.task_subject}',model_name = 'task' , importance = 'warning')
+    notification_create_api(message = f'تغییر وضعیت راننده {task.driver.first_name} {task.driver.last_name} از در ماموریت به آماده به کار',model_name = 'driver' , importance = 'normal')
+    notification_create_api(message = f'تغییر وضعیت خودرو {task.car.car_license_plate} از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
     task.delete()
     messages.success(request , "ماموریت با موفقیت حذف شد.")
     return render(request , 'transportation/task_delete.html' , {'task':task})
@@ -250,10 +296,9 @@ def task_delete(request , pk):
 def task_finish(request , pk):
     task = get_object_or_404(Task , pk = pk)
     abondon_car_driver_from_task(task.driver.id , task.car.id)
-    Notification.objects.create(message = f'اتمام ماموریت{task.task_subject} ',
-                                        notification_model_type ='task',
-                                        object_id = task.pk,
-                                        notification_importance = 'normal').save()
+    notification_create_api(message = f'اتمام ماموریت {task.task_subject}',model_name = 'task' , importance = 'normal')
+    notification_create_api(message = f'تغییر وضعیت راننده {task.driver.first_name} {task.driver.last_name} از در ماموریت به آماده به کار',model_name = 'driver' , importance = 'normal')
+    notification_create_api(message = f'تغییر وضعیت خودرو {task.car.car_license_plate} از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
 
     task.status = 'closed'
     task.save()
@@ -296,7 +341,9 @@ def task_print(request , pk):
             'created_by' : persian_date}
     file_name = str(task.task_subject) + str(persian_date)
     create_persian_pdf(file_name , data)
-    
+
+    notification_create_api(message = f'چاپ ماموریت {task.task_subject}',model_name = 'task' , importance = 'normal')
+   
     return render(request , 'transportation/task_print.html' , {'task':task , 'filename':file_name})
     
     
@@ -387,6 +434,18 @@ def notification_detail(request , pk):
     return render(request , 'transportation/notification_detail.html' , {'notification':notification})
 
 
+def notification_create_api(message , model_name ,importance, *args , **kwargs):
+    if kwargs:
+        
+        Notification.objects.create(message = message,
+                                    notification_model_type = model_name,
+                                    object_id = args,
+                                    notification_importance = importance).save()
+    else:
+        Notification.objects.create(message = message,
+                                        notification_model_type = model_name,
+                                        notification_importance = importance).save()
+
 def get_objects(request):
     
     model = request.GET.get('model')  # Get selected model
@@ -401,28 +460,42 @@ def get_objects(request):
         objects = list(Driver.objects.values("id" , "first_name"))
         
     return render(request, "transportation/notification_objects_options.html", {"objects": objects , "model":model})
-    # return JsonResponse({"objects": objects})
-    
 
-    
+
+
+@login_required(login_url="home/login/")
 def map_view(request):
-    return render(request, 'maps/map.html')
+    load_predefined_points()
+    return render(request, "transportation/maps.html")
 
-def predefined_points(request):
-    points = PredefinedPoint.objects.all()
-    data = [
-        {"id": p.id, "name": p.name, "lat": p.location.y, "lng": p.location.x}
-        for p in points
-    ]
-    return JsonResponse({"points": data})
-
-def save_selected_point(request):
+@csrf_exempt
+def save_route(request):
     if request.method == "POST":
-        point_id = request.POST.get("point_id")
-        user = request.POST.get("user", "anonymous")  # Example: Replace with auth user
+        data = json.loads(request.body)
+        point1_id = data.get("point1")
+        point2_id = data.get("point2")
 
-        point = PredefinedPoint.objects.get(id=point_id)
-        SelectedPoint.objects.create(point=point, user=user)
+        if point1_id and point2_id and point1_id != point2_id:
+            start = PredefinedPoint.objects.get(id=point1_id)
+            end = PredefinedPoint.objects.get(id=point2_id)
 
-        return JsonResponse({"success": True})
-    return JsonResponse({"error": "Invalid request"}, status=400)
+            distance = geodesic((start.latitude, start.longitude), (end.latitude, end.longitude)).km
+            Route.objects.create(start_point=start, end_point=end, distance_km=distance)
+
+            print({"status": "success", "distance_km": distance})
+
+            return JsonResponse({"status": "success", "distance_km": distance})
+
+    return JsonResponse({"status": "error", "message": "Invalid data"}, status=400)
+
+def routes_map(request):
+    routes = Route.objects.all()
+    route_data = [
+        {
+            "start": {"lat": route.start_point.latitude, "lng": route.start_point.longitude, "name": route.start_point.name},
+            "end": {"lat": route.end_point.latitude, "lng": route.end_point.longitude, "name": route.end_point.name},
+            "distance": route.distance_km
+        }
+        for route in routes
+    ]
+    return render(request, "transportation/routes_map.html", {"routes": json.dumps(route_data)})

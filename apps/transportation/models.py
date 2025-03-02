@@ -176,7 +176,7 @@ class Notification(models.Model):
 
     NOTIFICATION_IMPORTANCE = [
         ('normal','عادی'),
-        ('average','متوسط'),
+        ('warning','متوسط'),
         ('urgant', 'فوری'),
     ]
 
@@ -304,19 +304,19 @@ class Task(models.Model):
     class Meta:
         ordering = ['-created_at']
         
-        
-# maps/models.py
-from django.db import models
-from django.contrib.gis.db import models as geomodels
 
 class PredefinedPoint(models.Model):
     name = models.CharField(max_length=100)
-    location = geomodels.PointField()  # Stores latitude & longitude
+    latitude = models.FloatField()
+    longitude = models.FloatField()
 
     def __str__(self):
         return self.name
 
-class SelectedPoint(models.Model):
-    point = models.ForeignKey(PredefinedPoint, on_delete=models.CASCADE)
-    user = models.CharField(max_length=100)  # Example: Save user's name or ID
-    selected_at = models.DateTimeField(auto_now_add=True)
+class Route(models.Model):
+    start_point = models.ForeignKey(PredefinedPoint, on_delete=models.CASCADE, related_name="start_routes")
+    end_point = models.ForeignKey(PredefinedPoint, on_delete=models.CASCADE, related_name="end_routes")
+    distance_km = models.FloatField()
+
+    def __str__(self):
+        return f"{self.start_point.name} → {self.end_point.name}"

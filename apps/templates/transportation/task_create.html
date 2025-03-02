@@ -29,6 +29,9 @@
             {% csrf_token %}
             <div class="block-fields">
                 <p> {{ form.as_p }} </p>
+                <!-- <label for="distance">Distance (km):</label>
+                <input type="text" id="distance" name="distance" readonly>
+                <button type="button" onclick="openMap()">Select on Map</button> -->
             </div>
 
             <p><button type="submit" class="submit-btn">ثبت وظیفه</button></p>
@@ -40,6 +43,21 @@
 
 <!-- Specific JS goes HERE --> 
 {% block javascripts %}
+<script>
+    function openMap() {
+        var mapWindow = window.open('{% url "transportation:map" %}', "Select Route", "width=800,height=600");
+        
+        window.addEventListener("message", function(event) {
+            if (event.data.type === "routeSelected") {
+                document.getElementById("point1").value = event.data.point1;
+                document.getElementById("point2").value = event.data.point2;
+                document.getElementById("distance").value = event.data.distance.toFixed(2);
+            }
+        }, false);
+    }
+</script>
+
+
 <script>
     flatpickr("#datetimepicker", {
         enableTime: true,

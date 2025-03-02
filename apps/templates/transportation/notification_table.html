@@ -11,9 +11,25 @@
         <tbody>
             {% for notification in notifications %}
             <tr>
-                <td>{{ notification.notification_model_type }}</td>
-                <td>{{ notification.message|slice:":25" }}</td>
-                <td ><a href="#" class = "btn btn-success btn-sm">{{ notification.notification_importance }}</a></td>
+                <td>
+                    {% if notification.notification_model_type == 'driver' %}
+                        رانندگان
+                    {% elif notification.notification_model_type == 'car' %} 
+                        خودروها
+                    {% elif notification.notification_model_type == 'task' %}
+                        ماموریت‌ها
+                    {% endif %}
+                </td>
+                <td>{{ notification.message|slice:":40" }}</td>
+                <td >
+                    {% if notification.notification_importance == 'normal' %}
+                        <a href="#" class = "btn btn-success btn-sm">معمولی</a>
+                    {% elif notification.notification_importance == 'warning' %}
+                        <a href="#" class = "btn btn-warning btn-sm">مهم</a>
+                    {% elif notification.notification_importance == 'urgant' %}
+                        <a href="#" class = "btn btn-danger btn-sm">فوری</a>
+                    {% endif %}
+                </td>
                 <td>
                     <a href="{% url 'transportation:notification_update' notification.pk %}" class="btn btn-warning btn-sm">بروزرسانی</a>
                     <a href="{% url 'transportation:notification_delete' notification.pk %}" class = "btn btn-danger btn-sm">حذف</a>

@@ -5,6 +5,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from bidi.algorithm import get_display
 import arabic_reshaper
+from .models import PredefinedPoint
 
 def persian_to_latin(s):
     persian_digits = '۰۱۲۳۴۵۶۷۸۹'
@@ -138,3 +139,23 @@ def create_persian_pdf(filename , data):
 
 # # Example Usage
 # create_persian_pdf("علی رضایی", "123456", "۱۲۳-۴۵۶ ایران ۵۱", "حمل و نقل بار به مقصد تهران", "task_bill.pdf")
+
+
+def load_predefined_points():
+    points = [
+        {"name": "Tehran", "latitude": 35.6892, "longitude": 51.3890},
+        {"name": "Tabriz", "latitude": 38.0800, "longitude": 46.2919},
+        {"name": "Mashhad", "latitude": 36.2605, "longitude": 59.6168},
+        {"name": "Isfahan", "latitude": 32.4279, "longitude": 51.6894},
+        {"name": "Shiraz", "latitude": 29.5926, "longitude": 52.5836},
+        {"name": "Karaj", "latitude": 35.8353, "longitude": 50.9928},
+        {"name": "Qom", "latitude": 34.6401, "longitude": 50.8764},
+        {"name": "Ahvaz", "latitude": 31.3183, "longitude": 48.6693},
+        {"name": "Kermanshah", "latitude": 34.3142, "longitude": 47.0650},
+        {"name": "Urmia", "latitude": 37.5527, "longitude": 45.0761},
+        {"name": "Rasht", "latitude": 37.2800, "longitude": 49.5830},
+        {"name": "Zahedan", "latitude": 29.4963, "longitude": 60.8629},
+        {"name": "Kerman", "latitude": 30.2839, "longitude": 57.0834},
+    ]
+    for point in points:
+        PredefinedPoint.objects.get_or_create(**point)

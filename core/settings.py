@@ -11,8 +11,7 @@ from unipath import Path
 BASE_DIR = Path(__file__).parent
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-GDAL_LIBRARY_PATH = r'C:\\OSGeo4W\\bin\\gdal310.dll' 
-
+GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH", r'C:\\OSGeo4W\\bin\\gdal310.dll')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '_omc6hxq40u11no0uvi&g__lzj2n^4-dk#l#i+7+vgng!-bb^)'
 
@@ -29,18 +28,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 INSTALLED_APPS = [
+    # 'django.contrib.gis',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'leaflet',
     'jalali_date',
     'django_jalali',
     'apps.home',
     'apps.transportation',
     'apps.maps',
-    # 'leaflet',
+
 ]
 
 JALALI_DATE_DEFAULTS = {

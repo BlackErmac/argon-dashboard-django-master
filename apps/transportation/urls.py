@@ -5,7 +5,7 @@ from .views import (driver_create , driver_list , driver_update , driver_delete 
                     task_create , task_list , task_delete , task_update , task_finish , task_print,
                     notification_create , notification_list , notification_delete , notification_update,notification_detail,
                     get_objects,
-                    map_view, predefined_points, save_selected_point)
+                    map_view,save_route,routes_map)
 
 app_name = 'transportation'
 
@@ -36,7 +36,7 @@ urlpatterns = [
     path('notification/<int:pk>/detail/' , notification_detail , name = 'notification_detail'),
     path("get_objects/", get_objects, name="get_objects"),
     #maps
-    path('', map_view, name="map"),
-    path('api/predefined-points/', predefined_points, name="predefined_points"),
-    path('api/save-selected-point/', save_selected_point, name="save_selected_point"),
+    path("map", map_view, name="map"),
+    path("map/save_route/", save_route, name="map_save_route"),
+    path("map/routes_map/", routes_map, name="map_routes"),
     ]
