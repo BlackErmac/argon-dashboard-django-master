@@ -25,3 +25,6 @@ bidi-python
 arabic-reshaper
 django-geojson
 geopy
+celery
+redis
+django-celery-beat

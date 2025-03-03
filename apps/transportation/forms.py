@@ -191,7 +191,11 @@ class CarMaintenanceForm(forms.ModelForm):
             'fuel_check_each_total_distance': forms.TextInput(),
             }
         
-    
+class NotificationForm(forms.ModelForm):
+    class Meta:
+        model = Notification
+        fields = ['message', 'notification_importance']
+ 
 class CarFilterForm(forms.Form):
     company = forms.ChoiceField(choices=[("" , "همه شرکت ‌ها")]+Car.COMPANY_CHOICES ,label='شرکت سازنده:' ,  required= False)
     car_type = forms.ChoiceField(choices=[("" , "همه مدل ها")] + Car.CARTYPE_CHOICES , label= 'مدل:' , required = False)
@@ -208,14 +212,9 @@ class TaskFilterForm(forms.Form):
     duration = forms.ChoiceField(choices=[("" , "همه ماموریت‌ها:"),("12","ساعتی"),("24","روزانه"),("72","ماهانه")] , label = 'نوع ماموریت:', required=False)
     status = forms.ChoiceField(choices=[("" , "همه ماموریت‌ها:")]+Task.STATUS_CHOICES , label = 'وضعیت ماموریت:', required=False)
 
-class NotificationForm(forms.ModelForm):
-    class Meta:
-        model = Notification
-        fields = ['message', 'notification_importance']
-
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        print(cleaned_data, "###############")
+class NotificationFilterForm(forms.Form):
+    notification_importance = forms.ChoiceField(choices=[("" , "همه اعلان ها")]+Notification.NOTIFICATION_IMPORTANCE , label = 'اهمیت اعلان:', required=False)
+    
 
 
 

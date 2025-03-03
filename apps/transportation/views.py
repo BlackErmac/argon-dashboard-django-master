@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm , CarFilterForm , NotificationForm , DriverFilterForm , TaskFilterForm
+from .forms import DriverForm, CarForm, TaskForm , CarMaintenanceForm , CarFilterForm , NotificationForm , DriverFilterForm , TaskFilterForm , NotificationFilterForm
 from .models import Driver, Car, Task , CarMaintenance , Notification
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -29,7 +29,7 @@ def driver_create(request):
             print(data)
             driver_information = data['first_name'] + data['last_name']
             messages.success(request , f"با موفقیت ایجاد شد. {driver_information}راننده ")
-            Notification.objects.create(message = f' ایجاد راننده {driver_information}',
+            Notification.objects.create(message = f' ایجاد راننده <<{driver_information}>>',
                                         notification_model_type = 'driver',
                                         notification_importance = 'normal').save()
             return redirect('transportation:driver_list')
@@ -75,7 +75,7 @@ def driver_update(request , pk):
             form.save()
             driver_information = data['first_name'] + data['last_name']
             messages.success(request , f"با موفقیت بروزرسانی شد. {driver_information}راننده ")
-            Notification.objects.create(message = f' بروزرسانی راننده {driver_information}',
+            Notification.objects.create(message = f' بروزرسانی راننده <<{driver_information}>>',
                                         notification_model_type = 'driver',
                                         notification_importance = 'normal').save()
             return redirect('transportation:driver_list')
@@ -91,8 +91,8 @@ def driver_delete(request , pk):
     driver = get_object_or_404(Driver , pk = pk)
     driver.delete()
     driver_information = driver.first_name + driver.last_name
-    messages.success(request , f"با موفقیت حذف شد. {driver_information}راننده ")
-    Notification.objects.create(message = f' حذف راننده {driver_information}',
+    messages.success(request , f"با موفقیت حذف شد. <<{driver_information}راننده ")
+    Notification.objects.create(message = f' حذف راننده <<{driver_information}>>',
                                 notification_model_type = 'driver',
                                 notification_importance = 'warning').save()
 
@@ -109,7 +109,7 @@ def car_create(request):
             form.save()
             car_information = data['car_license_plate']
             messages.success(request , f"با موفقیت ایجاد شد. {car_information}خودرو ")
-            Notification.objects.create(message = f' ایجاد خودرو {car_information}',
+            Notification.objects.create(message = f' ایجاد خودرو <<{car_information}>>',
                                         notification_model_type = 'car',
                                         notification_importance = 'normal').save()
             return redirect('transportation:car_list')
@@ -161,7 +161,7 @@ def car_update(request , pk):
             form.save()
             car_information = data['car_license_plate']
             messages.success(request , f"با موفقیت بروزرسانی شد. {car_information}خودرو ")
-            Notification.objects.create(message = f' بروزرسانی خودرو {car_information}',
+            Notification.objects.create(message = f' بروزرسانی خودرو <<{car_information}>>',
                                         notification_model_type = 'car',
                                         notification_importance = 'normal').save()
 
@@ -177,8 +177,8 @@ def car_delete(request , pk):
     car = get_object_or_404(Car , pk = pk)
     car.delete()
     car_information = car.car_license_plate
-    messages.success(request , f"با موفقیت حذف شد. {car_information}خودرو ")
-    Notification.objects.create(message = f' حذف خودرو {car_information}',
+    messages.success(request , f"با موفقیت حذف شد. <<{car_information}خودرو")
+    Notification.objects.create(message = f' حذف خودرو <<{car_information}>>',
                                     notification_model_type = 'car',
                                     notification_importance = 'warning').save()
     return render(request , 'transportation/car_delete.html' , {'car':car})
@@ -192,7 +192,7 @@ def car_maintenance(request , pk):
         if form.is_valid():
             form.save()
             car_information = car.car_license_plate
-            messages.success(request , f"تنظیمات خودرو {car_information} با موفقیت بروزرسانی شد.")
+            messages.success(request , f"تنظیمات خودرو <<{car_information}>> با موفقیت بروزرسانی شد.")
             Notification.objects.create(message = f'تنظیمات خودرو {car_information}',
                                     notification_model_type = 'car',
                                     notification_importance = 'normal').save()
@@ -222,9 +222,9 @@ def task_create(request):
             task_information = request.POST['task_subject']
             messages.success(request , f"ماموریت {task_information} با موفقیت ایجاد شد.")
 
-            notification_create_api(message = f'ایجاد ماموریت {task_information}',model_name = 'task' , importance = 'normal')
-            notification_create_api(message = f'تغییر وضعیت راننده {driver.first_name} {driver.last_name} از آماده به کار به در ماموریت',model_name = 'driver' , importance = 'normal')
-            notification_create_api(message = f'تغییر وضعیت خودرو {car.car_license_plate} از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
+            notification_create_api(message = f'ایجاد ماموریت <<{task_information}>>',model_name = 'task' , importance = 'normal')
+            notification_create_api(message = f'تغییر وضعیت راننده <<{driver.first_name} {driver.last_name}>> از آماده به کار به در ماموریت',model_name = 'driver' , importance = 'normal')
+            notification_create_api(message = f'تغییر وضعیت خودرو <<{car.car_license_plate}>> از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
     
             return redirect('transportation:task_list')
             
@@ -271,7 +271,7 @@ def task_update(request , pk):
             
             task_information = request.POST['task_subject']
             messages.success(request , f"ماموریت {task_information} با موفقیت بروزرسانی شد.")
-            Notification.objects.create(message = f'بروزرسانی ماموریت {task_information}',
+            Notification.objects.create(message = f'بروزرسانی ماموریت <<{task_information}>>',
                                     notification_model_type = 'task',
                                     notification_importance = 'normal').save()
             return redirect('transportation:task_list')
@@ -285,9 +285,9 @@ def task_update(request , pk):
 def task_delete(request , pk):
     task = get_object_or_404(Task , pk = pk)
     abondon_car_driver_from_task(task.driver.id , task.car.id)
-    notification_create_api(message = f'حذف ماموریت {task.task_subject}',model_name = 'task' , importance = 'warning')
-    notification_create_api(message = f'تغییر وضعیت راننده {task.driver.first_name} {task.driver.last_name} از در ماموریت به آماده به کار',model_name = 'driver' , importance = 'normal')
-    notification_create_api(message = f'تغییر وضعیت خودرو {task.car.car_license_plate} از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
+    notification_create_api(message = f'حذف ماموریت <<{task.task_subject}>>',model_name = 'task' , importance = 'warning')
+    notification_create_api(message = f'تغییر وضعیت راننده <<{task.driver.first_name} {task.driver.last_name}>> از در ماموریت به آماده به کار',model_name = 'driver' , importance = 'normal')
+    notification_create_api(message = f'تغییر وضعیت خودرو <<{task.car.car_license_plate}>> از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
     task.delete()
     messages.success(request , "ماموریت با موفقیت حذف شد.")
     return render(request , 'transportation/task_delete.html' , {'task':task})
@@ -296,9 +296,9 @@ def task_delete(request , pk):
 def task_finish(request , pk):
     task = get_object_or_404(Task , pk = pk)
     abondon_car_driver_from_task(task.driver.id , task.car.id)
-    notification_create_api(message = f'اتمام ماموریت {task.task_subject}',model_name = 'task' , importance = 'normal')
-    notification_create_api(message = f'تغییر وضعیت راننده {task.driver.first_name} {task.driver.last_name} از در ماموریت به آماده به کار',model_name = 'driver' , importance = 'normal')
-    notification_create_api(message = f'تغییر وضعیت خودرو {task.car.car_license_plate} از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
+    notification_create_api(message = f'اتمام ماموریت <<{task.task_subject}>>',model_name = 'task' , importance = 'normal')
+    notification_create_api(message = f'تغییر وضعیت راننده <<{task.driver.first_name} {task.driver.last_name}>> از در ماموریت به آماده به کار',model_name = 'driver' , importance = 'normal')
+    notification_create_api(message = f'تغییر وضعیت خودرو <<{task.car.car_license_plate}>> از آماده به کار به در ماموریت',model_name = 'car' , importance = 'normal')
 
     task.status = 'closed'
     task.save()
@@ -332,30 +332,121 @@ def add_car_driver_to_task(driver , car):
 
 def task_print(request , pk):
     task = get_object_or_404(Task , pk = pk)
-    persian_date = JalaliDate(task.created_at)
+
+    file_name = str(task.task_subject)+ '.pdf'
+    task_start_end = task.route.start_point.name + '-' + task.route.end_point.name
+
     data = {'task_subject': task.task_subject ,
-            'car' : task.car.car_license_plate ,
-            'driver':task.driver.first_name + task.driver.last_name,
-            'driver_id':task.driver.identification_code,
-            'duration' : task.duration,
-            'created_by' : persian_date}
-    file_name = str(task.task_subject) + str(persian_date)
+            'car_license_plate' : task.car.car_license_plate ,
+            'driver_name':task.driver.first_name + task.driver.last_name,
+            'driver_num':task.driver.identification_code,
+            'task_duration' : task.duration,
+            'url':f'http://localhost:8000/transportation/task/{task.pk}/'}
+    
     create_persian_pdf(file_name , data)
 
     notification_create_api(message = f'چاپ ماموریت {task.task_subject}',model_name = 'task' , importance = 'normal')
    
     return render(request , 'transportation/task_print.html' , {'task':task , 'filename':file_name})
     
+
+def cars_maintenance_detail_list(request):
+    cars= Car.objects.all()
+    form = CarFilterForm(request.GET)
+
+    if form.is_valid():
+        company = form.cleaned_data.get("company")
+        car_type = form.cleaned_data.get('car_type')
+        days = form.cleaned_data.get('days')
+        usage = form.cleaned_data.get("usage")
+        status = form.cleaned_data.get("status")
+
+        if company:
+            cars = cars.filter(company=company)
+        if car_type:
+            cars = cars.filter(car_type = car_type)
+        if days:
+            delta = timezone.now() - timedelta(days = days)
+            cars = cars.filter(created_at__gte = delta)
+        if usage:
+            cars = cars.filter(usage__gte = usage)
+        if status:
+            cars = cars.filter(status = status)
+
+    # If HTMX request, return only the table partial
+    if request.headers.get("HX-Request"):
+        return render(request, "transportation/cars_maintenance_detail_table.html", {"cars": cars})
     
+    return render(request , 'transportation/cars_maintenance_detail_list.html' , {'cars':cars ,"form": form})
+
+def car_oil_check(request , pk):
+    car = get_object_or_404(Car , pk = pk)
+    car.car_maintenance.oil_check_alarm = False
+    car.car_maintenance.save()
+
+def car_filter_check(request , pk):
+    car = get_object_or_404(Car , pk = pk)
+    car.car_maintenance.filter_check_alarm = False
+    car.car_maintenance.save()
+
+def car_motor_check(request , pk):
+    car = get_object_or_404(Car , pk = pk)
+    car.car_maintenance.motor_check_alarm = False
+    car.car_maintenance.save()
+
+def car_tire_check(request , pk):
+    car = get_object_or_404(Car , pk = pk)
+    car.car_maintenance.tire_check_alarm = False
+    car.car_maintenance.save()
+
+def car_fuel_check(request , pk):
+    car = get_object_or_404(Car , pk = pk)
+    car.car_maintenance.fuel_check_alarm = False
+    car.car_maintenance.save()
 
 
 def car_maintenance_notifications(car , delta_distance):
 
     if car.car_maintenance.oil_chek_each_totoal_distance > delta_distance:
-        Notification.objects.create(message = 'چک کردن روغن',
+        Notification.objects.create(message = f'چک کردن روغن <<{car.car_license_plate}>>',
                                         notification_model_type = 'car',
                                         object_id =car.pk,
                                         notification_importance = 'urgant').save()
+        car.car_maintenance.oil_check_alarm = True
+        car.car_maintenance.save()
+
+    if car.car_maintenance.filter_check_each_total_distance > delta_distance:
+        Notification.objects.create(message = f'چک کردن فیلتر <<{car.car_license_plate}>>',
+                                        notification_model_type = 'car',
+                                        object_id =car.pk,
+                                        notification_importance = 'urgant').save()
+        car.car_maintenance.filter_check_alarm = True
+        car.car_maintenance.save()
+    
+    if car.car_maintenance.motor_check_each_total_distance > delta_distance:
+        Notification.objects.create(message = f'چک کردن موتور <<{car.car_license_plate}>>',
+                                        notification_model_type = 'car',
+                                        object_id =car.pk,
+                                        notification_importance = 'urgant').save()
+        car.car_maintenance.motor_check_alarm = True
+        car.car_maintenance.save()
+    
+    if car.car_maintenance.tire_check_each_total_distance > delta_distance:
+        Notification.objects.create(message = f'چک کردن باد تایر <<{car.car_license_plate}>>',
+                                        notification_model_type = 'car',
+                                        object_id =car.pk,
+                                        notification_importance = 'urgant').save()
+        car.car_maintenance.tire_check_alarm = True
+        car.car_maintenance.save()
+
+    if car.car_maintenance.fuel_check_each_total_distance > delta_distance:
+        Notification.objects.create(message = f'چک کردن سوخت  <<{car.car_license_plate}>>',
+                                        notification_model_type = 'car',
+                                        object_id =car.pk,
+                                        notification_importance = 'urgant').save()
+        car.car_maintenance.fuel_check_alarm = True
+        car.car_maintenance.save()
+
 
     
 
@@ -381,29 +472,19 @@ def notification_create(request):
 
 def notification_list(request):
     notifications = Notification.objects.all()
-    # form = NotificationForm(request.GET)
+    form = NotificationFilterForm(request.GET)
 
-    # if form.is_valid():
-    #     company = form.cleaned_data.get("company")
-    #     car_type = form.cleaned_data.get('car_type')
-    #     days = form.cleaned_data.get('days')
-    #     usage = form.cleaned_data.get("usage")
+    if form.is_valid():
+        notification_importance = form.cleaned_data['notification_importance']
 
-    #     if company:
-    #         cars = cars.filter(company=company)
-    #     if car_type:
-    #         cars = cars.filter(car_type = car_type)
-    #     if days:
-    #         delta = timezone.now() - timedelta(days = days)
-    #         cars = cars.filter(created_at__gte = delta)
-    #     if usage:
-    #         cars = cars.filter(usage__gte = usage)
+        if notification_importance:
+            notifications = notifications.filter(notification_importance = notification_importance)
 
-    # # If HTMX request, return only the table partial
-    # if request.headers.get("HX-Request"):
-    #     return render(request, "transportation/car_table.html", {"cars": cars})
+    # If HTMX request, return only the table partial
+    if request.headers.get("HX-Request"):
+        return render(request, "transportation/notification_table.html", {"notifications": notifications})
 
-    return render(request, "transportation/notification_list.html", {"notifications": notifications})#, "form": form})
+    return render(request, "transportation/notification_list.html", {"notifications": notifications , 'form':form})#, "form": form})
 
 @login_required(login_url="home/login/")
 def notification_update(request , pk):

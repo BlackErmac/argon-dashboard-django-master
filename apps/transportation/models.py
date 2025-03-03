@@ -116,8 +116,9 @@ class Car(models.Model):
     def get_count(cls):
         return {'all_cars': cls.objects.count(),\
                 'available_cars': cls.objects.filter(status='available').count(),\
-                'notavailable_cars':cls.objects.filter(status = 'not available').count(),\
-                'fixing_cars':cls.objects.filter(status = 'fixing').count()}
+                'atwork_cars':cls.objects.filter(status = 'at work').count(),\
+                'fixing_cars':cls.objects.filter(status = 'fixing').count(),
+                'cars':cls.objects.all()}
 
 
 class CarMaintenance(models.Model):
@@ -187,6 +188,14 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now = True)
 
+    @classmethod
+    def get_count(cls):
+        return {'all_notifications': cls.objects.count(),\
+                'normal_notifications': cls.objects.filter(notification_importance='normal').count(),\
+                'warning_notifications':cls.objects.filter(notification_importance = 'warning').count(),\
+                'urgant_notifications':cls.objects.filter(notification_importance = 'urgant').count()}
+
+
     def __str__(self):
         return f"notification {self.id} related to {self.notification_model_type}"
 
@@ -242,6 +251,7 @@ class Driver(models.Model):
     updated_at = models.DateTimeField(auto_now = True , verbose_name= 'Updated Date')
     created_by = models.ForeignKey(User , on_delete=models.SET_NULL , null = True , blank = True , verbose_name = "Created By" , related_name = 'drives')
     cars = models.ManyToManyField(Car , related_name= 'cars' , blank = True)
+
     is_available = models.CharField(max_length = 20 , choices=AVAILABLE_CHOICES , default='available' )
 
 
@@ -256,8 +266,9 @@ class Driver(models.Model):
     def get_count(cls):
         return {'all_drivers': cls.objects.count(),\
                 'available_drivers': cls.objects.filter(is_available='available').count(),\
-                'notavailable_drivers':cls.objects.filter(is_available = 'not available').count(),\
-                'abscense_drivers':cls.objects.filter(is_available = 'abscense').count()}
+                'atwork_drivers':cls.objects.filter(is_available = 'at work').count(),\
+                'abscense_drivers':cls.objects.filter(is_available = 'not available').count(),
+                'drivers':cls.objects.all()}
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.id})"
@@ -314,6 +325,7 @@ class PredefinedPoint(models.Model):
         return self.name
 
 class Route(models.Model):
+    # task = models.OneToOneField(Task , on_delete=models.CASCADE,null=True , blank=True , related_name='route')
     start_point = models.ForeignKey(PredefinedPoint, on_delete=models.CASCADE, related_name="start_routes")
     end_point = models.ForeignKey(PredefinedPoint, on_delete=models.CASCADE, related_name="end_routes")
     distance_km = models.FloatField()

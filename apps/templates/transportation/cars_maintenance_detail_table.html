@@ -1,0 +1,55 @@
+<!-- <a href="{% url 'transportation:car_create' %}" class="btn btn-success mb-3">ایجاد خودرو جدید</a> -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>پلاک خودرو</th>
+                <th>آلارم چک روغن</th>
+                <th>آلارم چک فیلتر</th>
+                <th>آلارم چک موتور</th>
+                <th>آلارم چک باد تایر</th>
+                <th>آلارم چک سوخت</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for car in cars %}
+            <tr>
+                <td>{{ car.car_license_plate }}</td>
+                <td>
+                    {% if car.car_maintenance.oil_check_alarm %}
+                    <a href="{% url 'transportation:car_oil_check' car.pk %}" class = "btn btn-danger btn-sm">فعال</a>
+                    {% else %}
+                    <p class="btn btn-success btn-sm">غیر فعال</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if car.car_maintenance.filter_check_alarm %}
+                    <a href="{% url 'transportation:car_filter_check' car.pk %}" class = "btn btn-danger btn-sm">فعال</a>
+                    {% else %}
+                    <p class="btn btn-success btn-sm">غیر فعال</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if car.car_maintenance.tire_check_alarm %}
+                    <a href="{% url 'transportation:car_tire_check' car.pk %}" class = "btn btn-danger btn-sm">فعال</a>
+                    {% else %}
+                    <p class="btn btn-success btn-sm">غیر فعال</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if car.car_maintenance.motor_check_alarm %}
+                    <a href="{% url 'transportation:car_motor_check' car.pk %}" class = "btn btn-danger btn-sm">فعال</a>
+                    {% else %}
+                    <p class="btn btn-success btn-sm">غیر فعال</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if car.car_maintenance.fuel_check_alarm %}
+                    <a href="{% url 'transportation:car_fuel_check' car.pk %}" class = "btn btn-danger btn-sm">فعال</a>
+                    {% else %}
+                    <p class="btn btn-success btn-sm">غیر فعال</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>

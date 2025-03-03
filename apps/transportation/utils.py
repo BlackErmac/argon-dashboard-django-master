@@ -1,3 +1,5 @@
+
+from __future__ import annotations
 from persiantools.jdatetime import JalaliDate
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -5,7 +7,29 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from bidi.algorithm import get_display
 import arabic_reshaper
+from reportlab.platypus import Table, TableStyle
+from reportlab.lib import colors
+import qrcode
 from .models import PredefinedPoint
+
+def create_qrcode(url):
+    qr = qrcode.QRCode(
+    version=1,  # QR code size (1 is smallest, higher = bigger)
+    error_correction=qrcode.constants.ERROR_CORRECT_L,  # Error correction level
+    box_size=10,  # Size of each box in the QR grid
+    border=4,  # Border size
+    )
+
+    qr.add_data(url)
+    qr.make(fit=True)
+
+    # Create an image from the QR Code
+    img = qr.make_image(fill="black", back_color="white")
+
+    # Save the QR code image
+    img.save("./apps/transportation/tasks_pdf_qrcodes/qrcode.png")
+    
+
 
 def persian_to_latin(s):
     persian_digits = '۰۱۲۳۴۵۶۷۸۹'
@@ -33,49 +57,80 @@ def driver_forms_data_persian_to_latin(data):
     
     return data
     
+def fix_arabic(text):
+    return get_display(arabic_reshaper.reshape(text))
 
-FONT_PATH = "Vazirmatn-VariableFont_wght.ttf"  # Change to your Persian font file
+
+FONT_PATH = "arial.ttf"  # Change to your Persian font file
 
 # Register the font in ReportLab
 pdfmetrics.registerFont(TTFont('PersianFont', FONT_PATH))
 
 def create_persian_pdf(filename , data):
+
+    filename = './apps/transportation/tasks_pdf_qrcodes/' + filename
     
     c = canvas.Canvas(filename, pagesize=A4)
     width, height = A4
 
-    # Set the Persian font
-    c.setFont("PersianFont", 14)
+    title_1 = fix_arabic("بسم الله الرحمن الرحیم")
+    c.setFont("PersianFont", 12)
+    c.drawRightString(width - 250, height - 20, title_1)
 
-    # Persian title (shaped and bidi-corrected)
-    title = "برگه ماموریت"
-    title_shaped = get_display(arabic_reshaper.reshape(title))
-    c.drawString(width - 100, height - 50, title_shaped)
+    title = fix_arabic("برگه ماموریت")
+    c.setFont("PersianFont", 18)
+    c.drawRightString(width - 250, height - 60, title)   
 
-    # Add some Persian text
-    text = "مثال"
-    text_shaped = get_display(arabic_reshaper.reshape(text))
-    c.drawString(width - 400, height - 140, text_shaped)
+    # c.rect(100, 780, 400, 40)
+    # c.setFont("PersianFont", 10)
+    # c.drawCentredString(500 , 400, fix_arabic("صورت‌حساب مأموریت"))
+    
+    title = fix_arabic("برابر امریه شماره ............ به .................... ماموریت") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width - 30, height - 90, title)
+    title = fix_arabic("داده میشود که از تاریخ ............ به .................... عزیمت") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width - 30, height - 105, title)
+    title = fix_arabic("و پس از انجام ماموریت خود را به واحد اصلی معرفی نماید.") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width - 30, height - 120, title)
 
-    # Draw a rectangle around text
-    c.rect(width - 420, height - 160, 300, 40, stroke=1, fill=0)
 
-    # Add a Persian table
-    from reportlab.platypus import Table, TableStyle
-    from reportlab.lib import colors
+    title = fix_arabic("۱- فرمانده یگان:....................") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width -300, height - 125, title)
+    title = fix_arabic("۲- رییس پرسنلی یگان:....................") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width - 300, height - 140, title)
+    title = fix_arabic("۳- فرمانده یا رپیس مستقیم:....................") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width - 300, height - 155, title)
+   
+    
+    table_data = [
+        [
+         get_display(arabic_reshaper.reshape("استفاده یا عدم استفاده \nاز تسهیلات زیست و غذا")),
+         get_display(arabic_reshaper.reshape("تاریخ ورود به واحد اصلی")),
+         get_display(arabic_reshaper.reshape("تاریخ خروج از محل ماموریت")),
+         get_display(arabic_reshaper.reshape("وسیله مراجعت")),
+         get_display(arabic_reshaper.reshape("تاریخ ورود به محل ماموریت")),
+         get_display(arabic_reshaper.reshape("وسیله عزیمت")),
+         get_display(arabic_reshaper.reshape("تاریخ عزیمت")),
+        ],
+        
+        [
+         get_display(arabic_reshaper.reshape(data['task_duration'])),
+         get_display(arabic_reshaper.reshape(data['task_subject'])),
+         get_display(arabic_reshaper.reshape(data['car_license_plate'])),
+         get_display(arabic_reshaper.reshape(data['driver_num'])),
+         get_display(arabic_reshaper.reshape(data['driver_name'])),
+         ]]
 
-    data = [
-        [get_display(arabic_reshaper.reshape("نام")), get_display(arabic_reshaper.reshape("سن")), get_display(arabic_reshaper.reshape("کشور"))],
-        [get_display(arabic_reshaper.reshape("علی")), "۳۰", get_display(arabic_reshaper.reshape("ایران"))],
-        [get_display(arabic_reshaper.reshape("زهرا")), "۲۵", get_display(arabic_reshaper.reshape("افغانستان"))],
-        [get_display(arabic_reshaper.reshape("محمد")), "۳۵", get_display(arabic_reshaper.reshape("ترکیه"))],
-    ]
-
-    table = Table(data, colWidths=[100, 50, 100])
+    table = Table(table_data, colWidths=[80, 80, 80,80,80,80])
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
         ('FONTNAME', (0, 0), (-1, -1), 'PersianFont'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
@@ -83,62 +138,39 @@ def create_persian_pdf(filename , data):
     ]))
 
     table.wrapOn(c, width, height)
-    table.drawOn(c, width - 400, height - 300)
+    table.drawOn(c, width - 530, height - 250)
+
+    title = fix_arabic("محل امضای رییس:") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width -50, height - 300, title)
+    title = fix_arabic("محل امضای راننده:") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width -200, height - 300, title)
+    title = fix_arabic("محل امضای ناظر:") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width -350, height - 300, title)
+    
+
+    title = fix_arabic("امضای دیجیتال:") 
+    c.setFont("PersianFont", 10)
+    c.drawRightString(width -50, height - 400, title)
+    create_qrcode(data['url'])
+    c.drawInlineImage("./apps/transportation/tasks_pdf_qrcodes/qrcode.png", width -230, height - 450, width=100, height=100)
+
 
     # Save the PDF
     c.showPage()
     c.save()
 
+data = {'driver_name':'امیر محمد غفاری' , 
+        'driver_num':'۱۳۷۶۵۴۳۲۱' , 
+        'car_license_plate':'۱۲ش۸۷۶',
+        'task_subject':'حمل بار',
+        'task_duration':'۲ روز',
+        'task_start_end':'تهران-تبریز',
+        'url':'http://localhost:8000/transportation/car/1/'}
 
-# from reportlab.pdfgen import canvas
-# from reportlab.lib.pagesizes import A4
-# from reportlab.pdfbase.ttfonts import TTFont
-# from reportlab.pdfbase import pdfmetrics
-# from reportlab.platypus import Table, TableStyle
-# from reportlab.lib import colors
-
-
-# pdfmetrics.registerFont(TTFont('Persian', FONT_PATH))  # Ensure you have this TTF file
-
-# def create_persian_pdf(driver_name, personal_number, license_plate, task_subject, output_filename):
-#     c = canvas.Canvas(output_filename, pagesize=A4)
-#     c.setFont("Persian", 12)
-    
-#     # Set document title with border
-#     c.rect(100, 780, 400, 40)
-#     c.drawCentredString(300, 800, "صورت‌حساب مأموریت")
-    
-#     # Add details with borders
-#     details = [
-#         ["نام راننده:", driver_name],
-#         ["شماره پرسنلی:", personal_number],
-#         ["پلاک خودرو:", license_plate],
-#         ["موضوع مأموریت:", task_subject]
-#     ]
-    
-#     table = Table(details, colWidths=[150, 250], rowHeights=30, hAlign='RIGHT')
-#     table.setStyle(TableStyle([
-#         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-#         ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-#         ('FONTNAME', (0, 0), (-1, -1), 'Persian'),
-#         ('FONTSIZE', (0, 0), (-1, -1), 12),
-#         ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-#         ('GRID', (0, 0), (-1, -1), 1, colors.black)
-#     ]))
-    
-#     table.wrapOn(c, 50, 600)
-#     table.drawOn(c, 100, 600)
-    
-#     # Footer with border
-#     c.rect(100, 80, 400, 40)
-#     c.drawCentredString(300, 100, "این سند رسمی و محرمانه است")
-    
-#     # Save PDF
-#     c.save()
-
-# # Example Usage
-# create_persian_pdf("علی رضایی", "123456", "۱۲۳-۴۵۶ ایران ۵۱", "حمل و نقل بار به مقصد تهران", "task_bill.pdf")
+# create_persian_pdf('test.pdf', data)
 
 
 def load_predefined_points():

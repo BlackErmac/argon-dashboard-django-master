@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (driver_create , driver_list , driver_update , driver_delete ,
-                    car_create , car_list , car_update , car_delete, car_maintenance,
+                    car_create , car_list , car_update , car_delete, car_maintenance,cars_maintenance_detail_list,car_oil_check , car_motor_check , car_fuel_check , car_tire_check , car_filter_check,
                     task_create , task_list , task_delete , task_update , task_finish , task_print,
                     notification_create , notification_list , notification_delete , notification_update,notification_detail,
                     get_objects,
@@ -21,6 +21,13 @@ urlpatterns = [
     path('car/<int:pk>/edit/', car_update, name='car_update'),
     path('car/<int:pk>/delete/' , car_delete , name = 'car_delete'),
     path('car/<int:pk>/maintenance/' , car_maintenance , name = 'car_maintenance'),
+    path('cars/details-lists/' , cars_maintenance_detail_list , name = 'cars_maintenance_detail_list'),
+    path('car/<int:pk>/oil-check/' , car_oil_check , name = 'car_oil_check'),
+    path('car/<int:pk>/motor-check/' , car_motor_check , name = 'car_motor_check'),
+    path('car/<int:pk>/fuel-check/' , car_fuel_check , name = 'car_fuel_check'),
+    path('car/<int:pk>/tire-check/' , car_tire_check , name = 'car_tire_check'),
+    path('car/<int:pk>/filter-check/' , car_filter_check , name = 'car_filter_check'),
+
     # Task URLs
     path('tasks/', task_list, name='task_list'),
     path('task/create/', task_create, name='task_create'),

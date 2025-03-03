@@ -8,13 +8,12 @@
     <form hx-get="{% url 'transportation:notification_list' %}" hx-target="#notification-table" hx-trigger="change">
         <div class="block-fields">
             <p class="inline-fields">
-                 {{ form.company.label }}{{ form.company }}
-
+                {{ form }}
             </p>
         </div>
     </form>
     
-    <div id="car-table">
+    <div id="notification-table">
         {% include 'transportation/notification_table.html' %}
     </div>
 

@@ -19,7 +19,27 @@
         var routes = JSON.parse('{{ routes|safe }}');
         routes.forEach(route => {
             var polyline = L.polyline([[route.start.lat, route.start.lng], [route.end.lat, route.end.lng]], { color: "blue" }).addTo(map);
+            
         });
+
+        function drawArrow(id1, id2) {
+            var start = predefinedPoints.find(p => p.id === id1);
+            var end = predefinedPoints.find(p => p.id === id2);
+
+            if (polyline) map.removeLayer(polyline);
+            if (arrowLayer) map.removeLayer(arrowLayer);
+
+            polyline = L.polyline([[start.lat, start.lng], [end.lat, end.lng]], { color: "blue", weight: 4 }).addTo(map);
+            
+            // Add arrowhead using polyline decorator
+            
+            arrowLayer = L.polylineDecorator(polyline, {
+                patterns: [
+                    { offset: '100%', repeat: 0, symbol: L.Symbol.arrowHead({ pixelSize: 15, polygon: false, pathOptions: { stroke: true, color: 'red', weight: 3 } }) }
+                ]
+            }).addTo(map);
+        }
+
     </script>
 </body>
 </html>

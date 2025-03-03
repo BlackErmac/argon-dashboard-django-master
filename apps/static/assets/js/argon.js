@@ -824,13 +824,15 @@ var BarsChart = (function() {
 				labels: ['خرداد', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر'],
 				datasets: [{
 					label: 'فروش',
-					data: [25, 20, 30, 22, 17, 29]
+					data: [25, 20, 30, 30, 30, 29]
 				}]
 			}
 		});
 
 		// Save to jQuery object
 		$chart.data('chart', ordersChart);
+
+
 	}
 
 

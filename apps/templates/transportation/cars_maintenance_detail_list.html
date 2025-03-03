@@ -1,0 +1,24 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="container" >
+    <br>
+    <h2>خودرو ها</h2>
+    <form hx-get="{% url 'transportation:cars_maintenance_detail_list' %}" hx-target="#car-table" hx-trigger="change">
+        <div class="block-fields">
+            <p class="inline-fields">
+                 {{ form.company.label }}{{ form.company }}
+                 {{ form.car_type.label }}{{ form.car_type }}
+                 {{ form.days.label }}{{ form.days }}
+                 {{ form.usage.label }}{{ form.usage }}
+            </p>
+        </div>
+    </form>
+    
+    <div id="car-table">
+        {% include 'transportation/cars_maintenance_detail_table.html' %}
+    </div>
+
+    {% endblock %}
+</div>
