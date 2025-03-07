@@ -6,8 +6,6 @@ class TransConfig(AppConfig):
     name = 'apps.transportation'
     label = 'apps_transportation'
 
-    print("dfasdfasfasf")
     def ready(self):
         """Start the background task when Django starts."""
-        print("lkgjfkgjdskgj'")
         threading.Thread(target=check_expired_tasks, daemon=True).start()

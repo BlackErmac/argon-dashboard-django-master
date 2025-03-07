@@ -2,10 +2,11 @@ from django.urls import path
 
 from .views import (driver_create , driver_list , driver_update , driver_delete ,
                     car_create , car_list , car_update , car_delete, car_maintenance,cars_maintenance_detail_list,car_oil_check , car_motor_check , car_fuel_check , car_tire_check , car_filter_check,
-                    task_create , task_list , task_delete , task_update , task_finish , task_print,
+                    task_create , task_list , task_delete , task_update , task_finish , task_bill_car_bill_print,
                     notification_create , notification_list , notification_delete , notification_update,notification_detail,
                     get_objects,
-                    map_view,save_route,routes_map)
+                    map_view,save_route,routes_map,
+                    logout_transportation)
 
 app_name = 'transportation'
 
@@ -34,7 +35,7 @@ urlpatterns = [
     path('task/<int:pk>/edit/', task_update, name='task_update'),
     path('task/<int:pk>/delete/' , task_delete , name = 'task_delete'),
     path('task/<int:pk>/finish/' , task_finish , name = 'task_finish'),
-    path('task/<int:pk>/print/' , task_print , name = 'task_print'),
+    path('task/<int:pk>/print/' , task_bill_car_bill_print , name = 'task_print'),
     # Notifications URLs
     path('notification/' , notification_list , name = 'notification_list' ),
     path('notification/create/', notification_create, name='notification_create'),
@@ -46,4 +47,6 @@ urlpatterns = [
     path("map", map_view, name="map"),
     path("map/save_route/", save_route, name="map_save_route"),
     path("map/routes_map/", routes_map, name="map_routes"),
+    #logout
+    path("logout/" , logout_transportation , name = 'transportation_logout' )
     ]

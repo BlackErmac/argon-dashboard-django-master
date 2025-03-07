@@ -6,21 +6,21 @@
 
 {% block content %}
 
-    <div class="header bg-primary pb-6">
+    <div class="header pb-6">
       <div class="container-fluid">
         <div class="header-body">
           <div class="row align-items-center py-4">
             <div class="col-lg-6 col-7">
-              <nav aria-label="breadcrumb" class="d-none d-md-inline-block mr-md-4">
-                <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                  <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                  <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
+              <nav aria-label="breadcrumb" class="d-md-inline-block mr-md-4">
+                <ol class="breadcrumb breadcrumb-links breadcrumb-dark btn btn-sm btn-primary">
+                  <li class="breadcrumb-item"><a href="#"><i class="fas fa-home "></i></a></li>
+                  <li class=""><a href="#">داشبورد</a></li>
                 </ol>
               </nav>
             </div>
             <div class="col-lg-6 col-5 text-left">
               <!-- <a href="#" class="btn btn-sm btn-neutral">جدید</a> -->
-              <a href="#" class="btn btn-sm btn-neutral">فیلترها</a>
+              <a href="{% url 'transportation:notification_list' %}" class="btn btn-sm btn-primary">گزارشگیری لحظه‌ای</a>
             </div>
           </div>
           <!-- Card stats -->
@@ -31,8 +31,8 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0"> تعداد خودروها</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ cars_info.all_cars }}</span>
+                      <h5 class="card-title text-uppercase mb-0"> تعداد خودروها</h5>
+                      <span class="h2 font-weight-bold mb-0"><h4>{{ cars_info.all_cars }}</h4></span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-yellow text-white rounded-circle shadow">
@@ -61,8 +61,8 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">تعداد رانندگان</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ drivers_info.all_drivers }}</span>
+                      <h5 class="card-title text-uppercase  mb-0">تعداد رانندگان</h5>
+                      <h4>{{ drivers_info.all_drivers }}</h4>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-yellow text-white rounded-circle shadow">
@@ -91,8 +91,8 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">تعداد ماموریت‌ها</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ tasks_info.all_tasks }}</span>
+                      <h5 class="card-title text-uppercase  mb-0">تعداد ماموریت‌ها</h5>
+                      <span class="h2 font-weight-bold mb-0"><h4>{{ tasks_info.all_tasks }}</h4></span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-yellow text-white rounded-circle shadow">
@@ -110,7 +110,7 @@
                   </strong></p>
                   <p class="mt-0 mb-0 text-xs"><strong>
                     <span class="text-danger ml-2">تاخیر دار</span>
-                    <span class="text-nowrap">{{ tasks_info.closed_tasks }}</span>
+                    <span class="text-nowrap">{{ tasks_info.lated_tasks }}</span>
                   </strong></p>
                 </div>
               </div>
@@ -121,8 +121,8 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">تعداد اعلان‌ها</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ notification_info.all_notifications }}</span>
+                      <h5 class="card-title text-uppercase  mb-0">تعداد اعلان‌ها</h5>
+                      <span class="h2 font-weight-bold mb-0"><h4>{{ notification_info.all_notifications }}</h4></span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-yellow text-white rounded-circle shadow">
@@ -157,7 +157,7 @@
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
                 <div class="col">
-                  <h5 class="h3 mb-0">ماموریت های انجام شده در ماه های مختلف</h5>
+                  <h5>ماموریت های انجام شده در روز های مختلف این هفته</h5>
                 </div>
               </div>
             </div>
@@ -185,7 +185,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">وضعیت رانندگان</h3>
+                  <h3 class="mb-0" style="color : black">وضعیت رانندگان</h3>
                 </div>
                 <div class="col text-left">
                   <a href="#!" class="btn btn-sm btn-primary">نمایش همه</a>
@@ -230,7 +230,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">آخرین وضعیت خودروها</h3>
+                  <h3 class="mb-0" style="color : black">آخرین وضعیت خودروها</h3>
                 </div>
                 <div class="col text-left">
                   <a href="{% url 'transportation:car_list' %}" class="btn btn-sm btn-primary">نمایش همه</a>
@@ -259,16 +259,22 @@
                         </td>
                         <td>
                           <div class="d-flex align-items-center">
-                            <span class="ml-2">60%</span>
+                            <span class="ml-2">{{ car.fuel_mount }}%</span>
                             <div>
                               <div class="progress">
-                                <div class="progress-bar bg-gradient-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
+                                <div class="progress-bar bg-gradient-danger" role="progressbar" aria-valuenow="{{ car.fuel_mount }}" aria-valuemin="0" aria-valuemax="100" style="width: 40%;"></div>
                               </div>
                             </div>
                           </div>
                         </td>
                         <td>
-                          {{ car.fuel }}
+                        {% if car.fuel == 'Diesel' %}
+                          گازوئیل
+                        {% elif car.fuel == 'gas' %}
+                          گاز
+                        {% else %}
+                          بنزین
+                        {% endif %}
                         </td>
                       </tr>
                   {% endfor %}
@@ -308,9 +314,11 @@
   /* Set map size */
   #map {
       width: 100%;
-      height: 300px;
+      height: 430px;
       border-radius: 8px;
+
   }
+
 </style>
 
             <!-- Optionally add Leaflet Draw JS for drawing tools -->

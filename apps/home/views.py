@@ -15,6 +15,7 @@ def index(request):
     notification_info = Notification.get_count()
 
     routes = Route.objects.all()
+
     route_data = [
         {
             "start": {"lat": route.start_point.latitude, "lng": route.start_point.longitude, "name": route.start_point.name},
@@ -23,7 +24,6 @@ def index(request):
         }
         for route in routes
     ]
-
 
     map = render(request, "transportation/routes_map.html", {"routes": json.dumps(route_data)}).content.decode("utf-8")
 
@@ -43,7 +43,7 @@ def pages(request):
         load_template = request.path.split('/')[-1]
 
         if load_template == 'admin':
-            return HttpResponseRedirect(reverse('admin:index'))
+            return HttpResponseRedirect(reverse('transportation:dashboard'))
         context['segment'] = load_template
 
         html_template = loader.get_template('home/' + load_template)

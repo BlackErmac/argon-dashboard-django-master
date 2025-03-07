@@ -8,7 +8,23 @@
     <form hx-get="{% url 'transportation:notification_list' %}" hx-target="#notification-table" hx-trigger="change">
         <div class="block-fields">
             <p class="inline-fields">
-                {{ form }}
+                {{ form.notification_importance.lable }}{{ form.notification_importance }}
+                <label for="modelSelect">رسته اعلان:</label>
+                <select id="modelSelect" name="model" 
+                        hx-get="{% url 'transportation:get_objects' %}" 
+                        hx-trigger="change" 
+                        hx-target="#objectSelect"
+                        hx-swap="innerHTML"
+                        hx-include="[name='model']">
+                    <option value="">انتخاب مدل</option>
+                    <option value="car">خودرو</option>
+                    <option value="task">ماموریت</option>
+                    <option value="driver">راننده</option>
+                </select>
+                <label for="objectSelect">انتخاب مورد:</label>
+                <select id="objectSelect" name="object_id">
+                    <option value="">انتخاب مورد</option>
+                </select>
             </p>
         </div>
     </form>

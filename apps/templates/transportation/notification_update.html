@@ -1,0 +1,63 @@
+
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block title %} بروزرسانی اعلان {% endblock title %}
+
+{% block stylesheets %}
+    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}"> {% endcomment %}
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        {% if form.errors %}
+        <ul class="errorlist">
+            {% for field, errors in form.errors.items %}
+                <li><strong>{{ field }}:</strong>
+                    <ul>
+                        {% for error in errors %}
+                            <li style="color: red;">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+                <label for="modelSelect">رسته اعلان:</label>
+                <select id="modelSelect" name="model" 
+                        hx-get="{% url 'transportation:get_objects' %}" 
+                        hx-trigger="change" 
+                        hx-target="#objectSelect"
+                        hx-swap="innerHTML"
+                        hx-include="[name='model']">
+                    <option value="">-- انتخاب مدل --</option>
+                    <option value="car">خودرو</option>
+                    <option value="task">ماموریت</option>
+                    <option value="driver">راننده</option>
+                </select>
+                <label for="objectSelect">انتخاب مورد:</label>
+                <select id="objectSelect" name="object_id">
+                    <option value="">-- Select an Object --</option>
+                </select>
+                {{ form.as_p }}
+        
+            <p><button type="submit" class="submit-btn">ثبت اعلان</button></p>
+
+        </form>
+    
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+
+
+{% endblock javascripts %}
+
+

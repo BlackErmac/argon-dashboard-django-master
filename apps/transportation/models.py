@@ -79,6 +79,7 @@ class Car(models.Model):
     created_by = models.ForeignKey(User , on_delete= models.SET_NULL , null = True , blank = True , db_index= True , related_name= 'cars')
     production_date = models.DateField(default=timezone.now)
     fuel = models.CharField(max_length=10 ,choices= FUEL_CHOICES , default='petrol')
+    fuel_mount = models.IntegerField(default=40)
     load_capacity = models.PositiveIntegerField(null= True , blank = True)
     chassis_number = models.CharField(max_length=20, null= True , blank = True)
     motor_number = models.CharField(max_length=20, null= True , blank = True)
@@ -118,7 +119,8 @@ class Car(models.Model):
                 'available_cars': cls.objects.filter(status='available').count(),\
                 'atwork_cars':cls.objects.filter(status = 'at work').count(),\
                 'fixing_cars':cls.objects.filter(status = 'fixing').count(),
-                'cars':cls.objects.all()}
+                'cars':cls.objects.all(),
+                }
 
 
 class CarMaintenance(models.Model):
@@ -151,6 +153,15 @@ class CarMaintenance(models.Model):
     def __str__(self):
         return f"خودرو {self.car.car_license_plate}"
 
+@receiver(post_save, sender=Car)
+def create_notification_for_car(sender, instance, created, **kwargs):
+    if created:  # Only run when a new Driver is created
+        car_information = instance.car_license_plate
+        Notification.objects.create(message = f' ایجاد خودرو <<{car_information}>>',
+                                        notification_model_type = 'car',
+                                        notification_importance = 'normal',
+                                        object_id=instance.id).save()
+
 @receiver(post_save , sender = Car)
 def create_car_maintenance(sender , instance , created , **kwargs):
     if created:
@@ -160,44 +171,7 @@ def create_car_maintenance(sender , instance , created , **kwargs):
 def save_car_maintenance(sender , instance , **kwargs):
     instance.car_maintenance.save()
 
-class Notification(models.Model):
 
-    # car_notification = Notification.objects.create(
-    # notification_type='car',
-    # content_type=ContentType.objects.get_for_model(Car),
-    # object_id=car.id,
-    # message="Your car needs maintenance!"
-
-
-    NOTIFICATION_MODEL_TYPES = [
-        ('car', 'Car Notification'),
-        ('task', 'Task Notification'),
-        ('driver' , 'Driver Notification'),
-    ]
-
-    NOTIFICATION_IMPORTANCE = [
-        ('normal','عادی'),
-        ('warning','متوسط'),
-        ('urgant', 'فوری'),
-    ]
-
-    message = models.CharField(max_length=100 , blank=True , null = True)
-    notification_model_type = models.CharField(max_length=10, choices=NOTIFICATION_MODEL_TYPES)
-    notification_importance = models.CharField(max_length=10 , choices=NOTIFICATION_IMPORTANCE)
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now = True)
-
-    @classmethod
-    def get_count(cls):
-        return {'all_notifications': cls.objects.count(),\
-                'normal_notifications': cls.objects.filter(notification_importance='normal').count(),\
-                'warning_notifications':cls.objects.filter(notification_importance = 'warning').count(),\
-                'urgant_notifications':cls.objects.filter(notification_importance = 'urgant').count()}
-
-
-    def __str__(self):
-        return f"notification {self.id} related to {self.notification_model_type}"
 
 class Driver(models.Model):
 
@@ -273,7 +247,16 @@ class Driver(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.id})"
 
-
+@receiver(post_save, sender=Driver)
+def create_notification_for_driver(sender, instance, created, **kwargs):
+    if created:  # Only run when a new Driver is created
+        driver_information = ' '.join([instance.first_name ,instance.last_name])
+        Notification.objects.create(
+            object_id=instance.id,  # Save only the Driver ID
+            message = f' ایجاد راننده <<{driver_information}>>',
+                                        notification_model_type = 'driver',
+                                        notification_importance = 'normal'
+        )
 class Task(models.Model):
     STATUS_CHOICES = [
         ('open', 'در حال انجام'),
@@ -292,6 +275,7 @@ class Task(models.Model):
     created_by = models.ForeignKey(User , on_delete=models.SET_NULL ,null = True , blank=True, related_name='tasks' , verbose_name='Created By')
 
 
+
     def __str__(self):
         return f"Task {self.id} - {self.driver.first_name} - {self.car.car_license_plate}"
 
@@ -299,7 +283,8 @@ class Task(models.Model):
     def get_count(cls):
         return {'all_tasks': cls.objects.count(),\
                 'open_tasks': cls.objects.filter(status='open').count(),\
-                'closed_tasks':cls.objects.filter(status = 'closed').count()}
+                'closed_tasks':cls.objects.filter(status = 'closed').count(),
+                'lated_tasks':cls.objects.filter(status = 'lated').count()}
 
 
 
@@ -314,7 +299,61 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        
+
+@receiver(post_save, sender=Task)
+def create_notification_for_task(sender, instance, created, **kwargs):
+    if created:  # Only run when a new Driver is created
+        task_information = instance.task_subject
+        Notification.objects.create(message = f'ایجاد ماموریت <<{task_information}>>',
+                                    model_name = 'task' ,
+                                    importance = 'normal',
+                                    object_id = instance.id).save()
+
+
+class Notification(models.Model):
+
+    # car_notification = Notification.objects.create(
+    # notification_type='car',
+    # content_type=ContentType.objects.get_for_model(Car),
+    # object_id=car.id,
+    # message="Your car needs maintenance!"
+
+
+    NOTIFICATION_MODEL_TYPES = [
+        ('car', 'اعلان خودرها'),
+        ('task', 'اعلام ماموریت‌ها'),
+        ('driver' , 'اعلان رانندگان'),
+    ]
+
+    NOTIFICATION_IMPORTANCE = [
+        ('normal','عادی'),
+        ('warning','متوسط'),
+        ('urgant', 'فوری'),
+    ]
+
+    message = models.CharField(max_length=100 , blank=True , null = True)
+    notification_model_type = models.CharField(max_length=10, choices=NOTIFICATION_MODEL_TYPES)
+    notification_importance = models.CharField(max_length=10 , choices=NOTIFICATION_IMPORTANCE)
+    car = models.ForeignKey(Car , null=True , blank=True , on_delete=models.CASCADE , related_name='notification')
+    driver = models.ForeignKey(Driver , null=True , blank=True , on_delete=models.CASCADE, related_name='notification')
+    task = models.ForeignKey(Task , null=True , blank=True , on_delete=models.CASCADE, related_name='notification')
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now = True)
+
+    class Meta:
+        ordering = ['-created_at']
+    
+    @classmethod
+    def get_count(cls):
+        return {'all_notifications': cls.objects.count(),\
+                'normal_notifications': cls.objects.filter(notification_importance='normal').count(),\
+                'warning_notifications':cls.objects.filter(notification_importance = 'warning').count(),\
+                'urgant_notifications':cls.objects.filter(notification_importance = 'urgant').count()}
+
+
+    def __str__(self):
+        return f"notification {self.id} related to {self.notification_model_type}"     
 
 class PredefinedPoint(models.Model):
     name = models.CharField(max_length=100)

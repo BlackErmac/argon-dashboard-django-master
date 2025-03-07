@@ -214,7 +214,8 @@ class TaskFilterForm(forms.Form):
 
 class NotificationFilterForm(forms.Form):
     notification_importance = forms.ChoiceField(choices=[("" , "همه اعلان ها")]+Notification.NOTIFICATION_IMPORTANCE , label = 'اهمیت اعلان:', required=False)
-    
+    notification_model_type = forms.ChoiceField(choices=[("" , "همه رسته‌ها")]+Notification.NOTIFICATION_MODEL_TYPES , label = 'نوع رسته:' ,required=False )
+
 
 
 

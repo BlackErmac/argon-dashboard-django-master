@@ -1,43 +1,16 @@
 @charset 'UTF-8';
 
-:root
-{
-    --blue: #5e72e4;
-    --indigo: #5603ad;
-    --purple: #8965e0;
-    --pink: #f3a4b5;
-    --red: #f5365c;
-    --orange: #fb6340;
-    --yellow: #ffd600;
-    --green: #2dce89;
-    --teal: #11cdef;
-    --cyan: #2bffc6;
-    --white: #fff;
-    --gray: #8898aa;
-    --gray-dark: #32325d;
-    --light: #ced4da;
-    --lighter: #e9ecef;
-    --primary: #5e72e4;
-    --secondary: #f7fafc;
-    --success: #2dce89;
-    --info: #11cdef;
-    --warning: #fb6340;
-    --danger: #f5365c;
-    --light: #adb5bd;
-    --dark: #212529;
-    --default: #172b4d;
-    --white: #fff;
-    --neutral: #fff;
-    --darker: black;
-    --breakpoint-xs: 0;
-    --breakpoint-sm: 576px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 992px;
-    --breakpoint-xl: 1200px;
-    --font-family-sans-serif: Open Sans, sans-serif;
-    --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+:root {
+    --primary: #4b5320; /* Military Green */
+    --secondary: #2f3e1f; /* Dark Olive */
+    --accent: #c0a661; /* Tactical Gold */
+    --background: #1a1a1a; /* Dark Mode Base */
+    --text: #d3d3d3; /* Light Gray */
+    --border: #6b8e23; /* Olive Drab */
+    --card-bg: #2a2a2a; /* Dark Card */
+    --button-hover: #556b2f; /* Darker Green */
+    --shadow-color: rgba(107, 142, 35, 0.4); /* Soft Green Glow */
 }
-
 *,
 *::before,
 *::after
@@ -79,8 +52,10 @@ body
 
     text-align: left;
 
-    color: #525f7f;
-    background-color: #f8f9fe;
+
+    background-color: #2f3e1f !important;
+    color: #d3d3d3 !important;
+
 }
 
 [tabindex='-1']:focus:not(:focus-visible)
@@ -198,19 +173,14 @@ sup
     top: -.5em;
 }
 
-a
-{
-    text-decoration: none;
-
-    color: #5e72e4;
+a {
+    color: white !important;
     background-color: transparent;
 }
-a:hover
-{
-    text-decoration: none; 
-
-    color: #233dd2;
+a:hover {
+    color: var(--primary) !important;
 }
+
 
 a:not([href])
 {
@@ -1780,6 +1750,7 @@ pre code
         max-width: 50%; 
 
         flex: 0 0 50%;
+        
     }
     .col-lg-7
     {
@@ -3289,6 +3260,7 @@ textarea.form-control
     border: 1px solid transparent;
     border-radius: .25rem;
     background-color: transparent;
+    
 }
 @media (prefers-reduced-motion: reduce)
 {
@@ -3303,6 +3275,7 @@ textarea.form-control
 
     color: #525f7f;
 }
+
 .btn:focus,
 .btn.focus
 {
@@ -5756,6 +5729,7 @@ input[type='button'].btn-block
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
+    
 }
 .navbar .container,
 .navbar .container-fluid,
@@ -6278,6 +6252,7 @@ input[type='button'].btn-block
     padding: 1.5rem; 
 
     flex: 1 1 auto;
+    background-color: white;
 }
 
 .card-title
@@ -19918,7 +19893,7 @@ a.btn-icon-only
 {
     padding: 30px 0; 
 
-    background: #f8f9fe;
+    background: var(--primary);
 }
 .footer .col-footer .heading
 {
@@ -29821,4 +29796,219 @@ input.datetimepicker[data-color='yellow'] + .bootstrap-datetimepicker-widget.dro
 .bootstrap-datetimepicker-widget.dropdown-black table td .btn[data-action='togglePeriod']
 {
     background: transparent;
+}
+
+
+
+/* Army Theme with Modern Design */
+:root {
+    --primary: #4b5320; /* Military Green */
+    --secondary: #2f3e1f; /* Dark Olive */
+    --accent: #c0a661; /* Tactical Gold */
+    --background: #1a1a1a; /* Dark Mode Base */
+    --text: #d3d3d3; /* Light Gray */
+    --border: #6b8e23; /* Olive Drab */
+    --card-bg: #2a2a2a; /* Dark Card */
+    --button-hover: #556b2f; /* Darker Green */
+    --shadow-color: rgba(107, 142, 35, 0.4); /* Soft Green Glow */
+}
+
+/* Global Styles */
+body {
+    background-color: var(--background) !important;
+    color: var(--text) !important;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: floralwhite;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Modern Button Styling */
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+/* Success Button (Green) */
+.btn-success {
+    background-color: #6b8e23 !important;
+    color: #d3d3d3 !important;
+    border: 2px solid #556b2f;
+}
+.btn-success:hover {
+    background-color: #556b2f !important;
+}
+
+/* Info Button (Tactical Blue) */
+.btn-info {
+    background-color: #1f3d7a !important;
+    color: #d3d3d3 !important;
+    border: 2px solid #1b315f;
+}
+.btn-info:hover {
+    background-color: #1b315f !important;
+}
+
+/* Warning Button (Gold) */
+.btn-warning {
+    background-color: #c0a661 !important;
+    color: #1a1a1a !important;
+    border: 2px solid #a0894c;
+}
+.btn-warning:hover {
+    background-color: #a0894c !important;
+}
+
+/* Danger Button (Deep Red) */
+.btn-danger {
+    background-color: #8b0000 !important;
+    color: #d3d3d3 !important;
+    border: 2px solid #6a0000;
+}
+.btn-danger:hover {
+    background-color: #6a0000 !important;
+}
+
+/* Primary Button (Army Green) */
+.btn-primary {
+    background-color: var(--primary) !important;
+    color: var(--text) !important;
+    border: 2px solid var(--border);
+}
+.btn-primary:hover {
+    background-color: var(--button-hover) !important;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: var(--background) !important;
+    color: var(--text) !important;
+    border-bottom: 2px solid var(--border);
+    padding: 10px 20px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+/* Cards with Modern Look */
+.card {
+    background-color: var(--card-bg) !important;
+    color: var(--text) !important;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    transition: transform 0.3s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text) !important;
+
+    box-shadow: 0 4px 10px var(--shadow-color);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Table Styling */
+.table {
+    background-color: var(--primary) !important;
+    color: var(--text) !important;
+    border-radius: 8px;
+}
+.table th, .table td {
+    border-color: var(--primary) !important;
+    padding: 12px;
+}
+
+/* Inputs and Forms */
+input, textarea, select {
+    background-color: var(--card-bg) !important;
+    color: var(--text) !important;
+    border: 2px solid var(--border) !important;
+    padding: 10px;
+    border-radius: 5px;
+    transition: border 0.3s ease-in-out;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: var(--accent) !important;
+    outline: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+
+/* forms */
+.container {
+    margin: 0 auto;
+    padding : 40px;
+}
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-container p {
+    margin-bottom: 10px;
+}
+
+/* Align Name and Age fields in one line */
+.inline-fields {
+    display: flex;
+    gap: 10px;
+}
+
+.inline-fields p {
+    flex: 1;
+    margin: 0;
+}
+
+/* Align Car and Fuel fields in another line */
+.block-fields p {
+    width: 100%;
+}
+
+/* Style input and select elements */
+input, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #000000;
+    border-radius: 5px;
+}
+
+/* Style submit button */
+.submit-btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-content: center;
+}
+
+.submit-btn:hover {
+    background-color: #556b2f;
 }

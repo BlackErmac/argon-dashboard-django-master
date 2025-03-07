@@ -5,41 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Routes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>#map { height: 500px; width: 100%; }</style>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-polyline-decorator/1.6.0/leaflet.polylineDecorator.min.js"></script> {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.min.js"></script>
+    <style>
+        #map { height: 500px; width: 100%; }
+    </style>
 </head>
 <body>
     <h2>Saved Routes</h2>
     <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         var map = L.map("map").setView([35.6892, 51.3890], 6);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-        var routes = JSON.parse('{{ routes|safe }}');
-        routes.forEach(route => {
-            var polyline = L.polyline([[route.start.lat, route.start.lng], [route.end.lat, route.end.lng]], { color: "blue" }).addTo(map);
-            
-        });
-
-        function drawArrow(id1, id2) {
-            var start = predefinedPoints.find(p => p.id === id1);
-            var end = predefinedPoints.find(p => p.id === id2);
-
-            if (polyline) map.removeLayer(polyline);
-            if (arrowLayer) map.removeLayer(arrowLayer);
-
-            polyline = L.polyline([[start.lat, start.lng], [end.lat, end.lng]], { color: "blue", weight: 4 }).addTo(map);
-            
-            // Add arrowhead using polyline decorator
-            
-            arrowLayer = L.polylineDecorator(polyline, {
-                patterns: [
-                    { offset: '100%', repeat: 0, symbol: L.Symbol.arrowHead({ pixelSize: 15, polygon: false, pathOptions: { stroke: true, color: 'red', weight: 3 } }) }
-                ]
-            }).addTo(map);
+        // Function to generate random colors
+        function getRandomColor() {
+            return '#' + Math.floor(Math.random()*16777215).toString(16);
         }
 
+        var routes = JSON.parse('{{ routes|safe }}');
+
+        routes.forEach(route => {
+            var color = getRandomColor(); // Assign unique color to each route
+
+            // Add polyline (route)
+            var polyline = L.polyline([[route.start.lat, route.start.lng], [route.end.lat, route.end.lng]], {
+                color: color,
+                weight: 4
+            }).addTo(map);
+
+            // Add start and end markers
+            var startMarker = L.marker([route.start.lat, route.start.lng] , {color:color}).addTo(map)
+                .bindPopup("Start: " + route.name);
+            var endMarker = L.marker([route.end.lat, route.end.lng], {color:color}).addTo(map)
+                .bindPopup("End: " + route.name);
+
+            // Add arrowhead at the end of the route
+            L.polylineDecorator(polyline, {
+                patterns: [
+                    { offset: '100%', repeat: 0, symbol: L.Symbol.arrowHead({ pixelSize: 15, polygon: false, pathOptions: { stroke: true, color: color, weight: 3 } }) }
+                ]
+            }).addTo(map);
+
+            // Show tooltip on hover
+            polyline.on("mouseover", function(e) {
+                var popup = L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(" ماموریت در حال انجام از"+route.start.name+'-'+route.end.name)
+                    .openOn(map);
+            });
+
+            polyline.on("mouseout", function() {
+                map.closePopup();
+            });
+        });
     </script>
 </body>
 </html>

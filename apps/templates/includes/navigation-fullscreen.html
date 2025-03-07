@@ -1,4 +1,4 @@
-<nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg navbar-light">
+<nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg">
   <div class="container">
     {% comment %} <a class="navbar-brand" href="/">
       <img src="/static/assets/img/brand/white.png" alt="Argon Design - Template Starter Logo.">
@@ -24,12 +24,12 @@
       </div>
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a href="{% url 'login' %}" class="nav-link">
+          <a href="{% url 'authentication:login' %}" class="nav-link">
             <span class="nav-link-inner--text">Login</span>
           </a>
         </li>
         <li class="nav-item">
-          <a href="{% url 'register' %}" class="nav-link">
+          <a href="{% url 'authentication:register' %}" class="nav-link">
             <span class="nav-link-inner--text">Register</span>
           </a>
         </li>

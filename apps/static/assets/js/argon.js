@@ -821,10 +821,10 @@ var BarsChart = (function() {
 		var ordersChart = new Chart($chart, {
 			type: 'bar',
 			data: {
-				labels: ['خرداد', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر'],
+				labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سشنبه', 'چارشنبه', 'پنجشنبه','جمعه'],
 				datasets: [{
-					label: 'فروش',
-					data: [25, 20, 30, 30, 30, 29]
+					label: 'ماموریت ها',
+					data: [12, 14, 15, 20, 10, 9 , 3]
 				}]
 			}
 		});
