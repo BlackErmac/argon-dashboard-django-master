@@ -6,7 +6,7 @@
 
 {% elif model == 'driver' %}
     {% for obj in objects %}
-        <option value="{{ obj.id }}">{{ obj.first_name }} {{obj.last_name~}}</option>
+        <option value="{{ obj.id }}">{{ obj.first_name }} {{obj.last_name}}</option>
     {% endfor %}
 
 {% elif model == 'task' %}

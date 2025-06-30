@@ -1,0 +1,13 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="container" >
+    
+<p>شمت با موفقیت برگه ماموریت <<{{ file_name_task }}>> را چاپ کردید.</p>
+<p>شمت با موفقیت برگه خودرو <<{{ file_name_car}}>> را چاپ کردید.</p>
+<a href="{% url 'transportation:task_list' %}">Click!</a>
+
+</div>
+
+{% endblock content %}

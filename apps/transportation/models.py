@@ -74,8 +74,8 @@ class Car(models.Model):
     temporary_usage = models.PositiveIntegerField(default=0)
     company = models.CharField(max_length=10 ,choices=COMPANY_CHOICES , default='Toyota')
     ownership = models.CharField(max_length=10 ,choices = OWNERSHIP_CHOICES , default = 'public')
-    created_at = models.DateTimeField(auto_now_add= True,verbose_name="Creation Date")
-    updated_at = models.DateTimeField(auto_now=True,verbose_name="Updated Date")
+    created_at = jmodels.jDateTimeField(auto_now_add= True,verbose_name="Creation Date")
+    updated_at = jmodels.jDateTimeField(auto_now=True,verbose_name="Updated Date")
     created_by = models.ForeignKey(User , on_delete= models.SET_NULL , null = True , blank = True , db_index= True , related_name= 'cars')
     production_date = models.DateField(default=timezone.now)
     fuel = models.CharField(max_length=10 ,choices= FUEL_CHOICES , default='petrol')
@@ -129,23 +129,23 @@ class CarMaintenance(models.Model):
     car = models.OneToOneField(Car , on_delete= models.CASCADE , related_name = 'car_maintenance')
     
     oil_check_by_user = models.BooleanField(default=False)
-    oil_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
+    oil_check_each_total_distance = models.PositiveIntegerField(default=0)
     oil_check_alarm = models.BooleanField(default=False)
 
     filter_check_by_user = models.BooleanField(default=False)
-    filter_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
+    filter_check_each_total_distance = models.PositiveIntegerField(default=0)
     filter_check_alarm = models.BooleanField(default=False)
 
     motor_check_by_user = models.BooleanField(default=False)
-    motor_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
+    motor_check_each_total_distance = models.PositiveIntegerField(default=0)
     motor_check_alarm = models.BooleanField(default=False)
 
     tire_check_by_user = models.BooleanField(default=False)
-    tire_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
+    tire_check_each_total_distance = models.PositiveIntegerField(default=0)
     tire_check_alarm = models.BooleanField(default=False)
 
     fuel_check_by_user = models.BooleanField(default=False)
-    fuel_check_each_total_distance = models.PositiveIntegerField(null=True, blank=True)
+    fuel_check_each_total_distance = models.PositiveIntegerField(default=0)
     fuel_check_alarm = models.BooleanField(default=False)
 
     default_maintenance_info = models.JSONField(default = default_maintenance_info)
@@ -221,8 +221,8 @@ class Driver(models.Model):
     driver_phone_number = models.CharField(max_length=11)
     driver_phone_number2 = models.CharField( max_length=11 , null= True,  blank= True)
     profile_image = models.ImageField(upload_to='driver_profile_images/' , blank = True, null = True)
-    created_at = models.DateTimeField(auto_now_add=True , verbose_name="Creation Date")
-    updated_at = models.DateTimeField(auto_now = True , verbose_name= 'Updated Date')
+    created_at = jmodels.jDateTimeField(auto_now_add=True , verbose_name="Creation Date")
+    updated_at = jmodels.jDateTimeField(auto_now = True , verbose_name= 'Updated Date')
     created_by = models.ForeignKey(User , on_delete=models.SET_NULL , null = True , blank = True , verbose_name = "Created By" , related_name = 'drives')
     cars = models.ManyToManyField(Car , related_name= 'cars' , blank = True)
 
@@ -305,8 +305,8 @@ def create_notification_for_task(sender, instance, created, **kwargs):
     if created:  # Only run when a new Driver is created
         task_information = instance.task_subject
         Notification.objects.create(message = f'ایجاد ماموریت <<{task_information}>>',
-                                    model_name = 'task' ,
-                                    importance = 'normal',
+                                    notification_model_type = 'task' ,
+                                    notification_importance = 'normal',
                                     object_id = instance.id).save()
 
 
@@ -338,8 +338,8 @@ class Notification(models.Model):
     driver = models.ForeignKey(Driver , null=True , blank=True , on_delete=models.CASCADE, related_name='notification')
     task = models.ForeignKey(Task , null=True , blank=True , on_delete=models.CASCADE, related_name='notification')
     object_id = models.PositiveIntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now = True)
+    created_at = jmodels.jDateTimeField(auto_now_add=True)
+    updated_at = jmodels.jDateTimeField(auto_now = True)
 
     class Meta:
         ordering = ['-created_at']
